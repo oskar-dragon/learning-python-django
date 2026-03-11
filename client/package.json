@@ -1,0 +1,10 @@
+{
+  "name": "client",
+  "private": true,
+  "dependencies": {
+    "@hey-api/client-fetch": "latest"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "latest"
+  }
+}
