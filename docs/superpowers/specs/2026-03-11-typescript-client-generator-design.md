@@ -14,22 +14,21 @@ Export the OpenAPI schema using Django Ninja's built-in management command, then
 
 A single `generate:client` task in `Taskfile.yml`:
 
-1. `python manage.py export_openapi_schema --output client/openapi.json`
+1. `uv run manage.py export_openapi_schema --output client/openapi.json`
 2. `cd client && bun install`
 3. `cd client && bunx @hey-api/openapi-ts`
 
 ## Directory Layout
 
+`client/` is a pre-committed directory. Its contents at commit time:
+
 ```
 client/
   package.json              # devDeps: @hey-api/openapi-ts; deps: @hey-api/client-fetch
   bun.lock                  # committed
-  openapi-ts.config.ts      # Hey API config: input=openapi.json, output=src/, client=@hey-api/client-fetch
+  openapi-ts.config.ts      # Hey API config
   openapi.json              # gitignored (generated artifact)
-  src/                      # gitignored (generated artifact)
-    types.gen.ts            # all TypeScript interfaces and discriminated unions
-    services.gen.ts         # typed fetch functions per endpoint
-    index.ts                # re-exports
+  src/                      # gitignored (generated artifact — filenames depend on Hey API version)
 ```
 
 ## Hey API Config (`openapi-ts.config.ts`)
@@ -40,8 +39,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 export default defineConfig({
   input: "openapi.json",
   output: "src",
-  plugins: ["@hey-api/typescript", "@hey-api/sdk"],
-  client: "@hey-api/client-fetch",
+  plugins: ["@hey-api/client-fetch", "@hey-api/typescript", "@hey-api/sdk"],
 });
 ```
 
