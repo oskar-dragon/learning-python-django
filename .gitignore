@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+
+# Environment secrets
+.env
+
+# Django
+staticfiles/
+media/
