@@ -23,6 +23,7 @@ dev = [
 [tool.ruff]
 target-version = "py313"
 line-length = 100
+exclude = ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "DJ"]
@@ -31,5 +32,8 @@ select = ["E", "F", "I", "DJ"]
 pythonVersion = "3.13"
 venvPath = "."
 venv = ".venv"
+exclude = ["**/migrations", ".venv"]
 reportImplicitStringConcatenation = false
 reportUnannotatedClassAttribute = false
+reportAny = false
+reportMissingTypeArgument = false
