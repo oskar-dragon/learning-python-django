@@ -15,6 +15,6 @@ media/
 
 # Hey API client generator artifacts
 client/openapi.json
-client/src/
+client/src/*
 !client/src/ts-pattern/
 client/node_modules/
