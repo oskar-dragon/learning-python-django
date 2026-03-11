@@ -13,7 +13,11 @@ type PostSchema = DraftPostSchema | PublishedPostSchema;
 // Placeholder error types — replace with generated types once backend is built.
 // TODO: replace AuthError/ValidationError with generated types once backend is built
 type AuthError = { type: "auth_error"; message: string };
-type ValidationError = { type: "validation_error"; field: string; message: string };
+type ValidationError = {
+  type: "validation_error";
+  field: string;
+  message: string;
+};
 type ApiError = PostNotFoundError | AuthError | ValidationError;
 
 // Example 1: match on the PostSchema discriminated union only.
@@ -22,8 +26,14 @@ type ApiError = PostNotFoundError | AuthError | ValidationError;
 // `p.publish` only on PublishedPostSchema.
 function describePost(post: PostSchema): string {
   return match(post)
-    .with({ status: "DF" }, (p) => `Draft: ${p.title}, last updated ${p.updated}`)
-    .with({ status: "PB" }, (p) => `Published: ${p.title} on ${p.publish ?? "TBD"}`)
+    .with(
+      { status: "DF" },
+      (p) => `Draft: ${p.title}, last updated ${p.updated}`,
+    )
+    .with(
+      { status: "PB" },
+      (p) => `Published: ${p.title} on ${p.publish ?? "TBD"}`,
+    )
     .exhaustive();
 }
 
@@ -32,9 +42,15 @@ function describePost(post: PostSchema): string {
 // `.exhaustive()` ensures all three error types are handled.
 function describeError(error: ApiError): string {
   return match(error)
-    .with({ type: "post_not_found" }, (e) => `Post ${e.id} not found: ${e.detail}`)
+    .with(
+      { type: "post_not_found" },
+      (e) => `Post ${e.id} not found: ${e.detail}`,
+    )
     .with({ type: "auth_error" }, (e) => `Auth error: ${e.message}`)
-    .with({ type: "validation_error" }, (e) => `Validation error on ${e.field}: ${e.message}`)
+    .with(
+      { type: "validation_error" },
+      (e) => `Validation error on ${e.field}: ${e.message}`,
+    )
     .exhaustive();
 }
 
@@ -46,7 +62,10 @@ function handlePostResult(result: PostSchema | ApiError): string {
   return match(result)
     .with({ status: "DF" }, (p) => `Draft: ${p.title}`)
     .with({ status: "PB" }, (p) => `Published: ${p.title}`)
-    .with({ type: "post_not_found" }, (e) => `Not found: post ${e.id} — ${e.detail}`)
+    .with(
+      { type: "post_not_found" },
+      (e) => `Not found: post ${e.id} — ${e.detail}`,
+    )
     .with({ type: "auth_error" }, (e) => `Unauthorized: ${e.message}`)
     .with({ type: "validation_error" }, (e) => `Bad input on ${e.field}`)
     .exhaustive();
