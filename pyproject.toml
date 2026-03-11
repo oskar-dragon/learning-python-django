@@ -37,3 +37,4 @@ reportImplicitStringConcatenation = false
 reportUnannotatedClassAttribute = false
 reportAny = false
 reportMissingTypeArgument = false
+reportIncompatibleVariableOverride = false
