@@ -8,7 +8,7 @@ Add type-level usage examples in `client/src/ts-pattern/posts.ts` showing how to
 
 ## Context
 
-The Django Ninja backend exposes a `PostSchema` discriminated union (on `status: 'DF' | 'PB'`) and a `PostNotFoundError`. The Hey API generator already produces correct TypeScript types in `client/src/types.gen.ts`. The ts-pattern examples consume those types directly.
+The Django Ninja backend exposes two post schemas — `DraftPostSchema` (status `'DF'`) and `PublishedPostSchema` (status `'PB'`) — and a `PostNotFoundError`. The Hey API generator produces these as named types in `client/src/types.gen.ts`. The generated response types express the union inline as `DraftPostSchema | PublishedPostSchema`; the examples define a local alias `type PostSchema = DraftPostSchema | PublishedPostSchema` for readability.
 
 The backend will eventually have richer error types (auth, validation, etc.). Placeholder types fill that gap for now and will be replaced when the backend is built.
 
@@ -16,19 +16,29 @@ The backend will eventually have richer error types (auth, validation, etc.). Pl
 
 Option B: existing generated types + inline placeholder types. No separate fixtures file — everything visible in one place.
 
-## File
+## Files
 
-`client/src/ts-pattern/posts.ts`
-
-No other files created.
+- `client/src/ts-pattern/posts.ts` — the examples
+- `client/tsconfig.json` — must be created (no tsconfig currently exists in the repo); should cover `client/src/**` with `strict: true` and a module resolution compatible with the bun/ESM setup
 
 ## Dependency
 
-Add `ts-pattern` to `client/package.json` dependencies.
+Add `ts-pattern` to `client/package.json` dependencies. Use `"latest"` as the version specifier, consistent with the rest of `package.json`.
 
 ## Example Progression
 
-Three examples, building in complexity:
+Three examples, building in complexity. Each example imports what it uses:
+
+```ts
+import { match } from 'ts-pattern';
+import type { DraftPostSchema, PublishedPostSchema, PostNotFoundError } from '../types.gen';
+```
+
+### Local alias
+
+```ts
+type PostSchema = DraftPostSchema | PublishedPostSchema;
+```
 
 ### 1. Match on `PostSchema` only
 
@@ -38,7 +48,7 @@ Demonstrates discriminated union pattern matching on the `status` field.
 function describePost(post: PostSchema): string {
   return match(post)
     .with({ status: 'DF' }, (p) => `Draft: ${p.title}, last updated ${p.updated}`)
-    .with({ status: 'PB' }, (p) => `Published: ${p.title} on ${p.publish}`)
+    .with({ status: 'PB' }, (p) => `Published: ${p.title} on ${p.publish ?? 'TBD'}`)
     .exhaustive();
 }
 ```
@@ -55,7 +65,7 @@ type ApiError = PostNotFoundError | AuthError | ValidationError;
 
 function describeError(error: ApiError): string {
   return match(error)
-    .with({ type: 'post_not_found' }, (e) => `Post ${e.id} not found`)
+    .with({ type: 'post_not_found' }, (e) => `Post ${e.id} not found: ${e.detail}`)
     .with({ type: 'auth_error' }, (e) => `Auth error: ${e.message}`)
     .with({ type: 'validation_error' }, (e) => `Validation error on ${e.field}: ${e.message}`)
     .exhaustive();
@@ -71,7 +81,7 @@ function handlePostResult(result: PostSchema | ApiError): string {
   return match(result)
     .with({ status: 'DF' }, (p) => `Draft: ${p.title}`)
     .with({ status: 'PB' }, (p) => `Published: ${p.title}`)
-    .with({ type: 'post_not_found' }, (e) => `Not found: post ${e.id}`)
+    .with({ type: 'post_not_found' }, (e) => `Not found: post ${e.id} — ${e.detail}`)
     .with({ type: 'auth_error' }, (e) => `Unauthorized: ${e.message}`)
     .with({ type: 'validation_error' }, (e) => `Bad input on ${e.field}`)
     .exhaustive();
@@ -84,5 +94,5 @@ function handlePostResult(result: PostSchema | ApiError): string {
 
 - Runnable scripts or actual API calls
 - Tests
-- Other ts-pattern libraries (separate `src/<library-name>/` directories when needed)
+- Other pattern-matching libraries (separate `src/<library-name>/` directories when needed)
 - Backend changes (separate sub-project)
