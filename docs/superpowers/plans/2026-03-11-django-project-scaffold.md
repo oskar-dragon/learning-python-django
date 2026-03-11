@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Scaffold a modern Django development environment with uv, ruff, ty, Django Ninja, pre-commit hooks, Docker PostgreSQL, and Taskfile.
+**Goal:** Scaffold a modern Django development environment with uv, ruff, basedpyright, Django Ninja, pre-commit hooks, Docker PostgreSQL, and Taskfile.
 
 **Architecture:** Flat repo structure with `manage.py` at root, `project/` as the Django config package, and apps as sibling directories. All tooling config in `pyproject.toml`. PostgreSQL runs in Docker Compose, managed via Taskfile tasks. Environment variables loaded from `.env` via `python-dotenv`.
 
-**Tech Stack:** Python 3.13.12, Django 6.0.x, Django Ninja 1.5.x, PostgreSQL 17 (Docker), uv, ruff, ty, pre-commit, Taskfile, python-dotenv, dj-database-url
+**Tech Stack:** Python 3.13.12, Django 6.0.x, Django Ninja 1.5.x, PostgreSQL 17 (Docker), uv, ruff, basedpyright, django-types, pre-commit, Taskfile, python-dotenv, dj-database-url
 
 **Spec:** `docs/superpowers/specs/2026-03-11-django-project-scaffold-design.md`
 
@@ -189,12 +189,13 @@ uv add "psycopg[binary]" python-dotenv dj-database-url
 - [ ] **Step 2: Add dev dependencies**
 
 ```bash
-uv add --dev ruff ty pre-commit
+uv add --dev ruff basedpyright django-types pre-commit
 ```
 
 **What these do:**
 - `ruff`: An extremely fast Python linter and formatter (written in Rust). Replaces flake8, black, isort, and many other tools.
-- `ty`: A type checker for Python (from the same team as ruff). Still early but works.
+- `basedpyright`: A type checker for Python (a fork of Microsoft's pyright with stricter defaults). Works well with Django via `django-types`.
+- `django-types`: Type stubs that teach basedpyright about Django's dynamic features (model fields, querysets, managers, etc.).
 - `pre-commit`: A framework for managing git pre-commit hooks. Runs checks automatically before each commit.
 
 - [ ] **Step 3: Verify everything installed**
@@ -202,7 +203,7 @@ uv add --dev ruff ty pre-commit
 ```bash
 uv run python -c "import psycopg; import dotenv; import dj_database_url; print('All imports OK')"
 uv run ruff --version
-uv run ty --version
+uv run basedpyright --version
 uv run pre-commit --version
 ```
 
@@ -434,9 +435,9 @@ git commit -m "feat: add Docker Compose for PostgreSQL"
 
 ## Chunk 4: Tooling Configuration
 
-### Task 8: Configure ruff and ty in pyproject.toml
+### Task 8: Configure ruff and basedpyright in pyproject.toml
 
-**Why:** Ruff handles linting (finding bugs and style issues) and formatting (consistent code style). ty handles type checking. Both are configured in `pyproject.toml` so there are no extra config files.
+**Why:** Ruff handles linting (finding bugs and style issues) and formatting (consistent code style). basedpyright handles type checking. Both are configured in `pyproject.toml` so there are no extra config files.
 
 **Files:**
 - Modify: `pyproject.toml`
@@ -459,15 +460,18 @@ select = ["E", "F", "I", "DJ"]
 - `I` — isort (import ordering — keeps your imports sorted and grouped)
 - `DJ` — Django-specific rules (common Django mistakes)
 
-- [ ] **Step 2: Add ty configuration**
+- [ ] **Step 2: Add basedpyright configuration**
 
 Add to `pyproject.toml`:
 
 ```toml
-[tool.ty]
+[tool.basedpyright]
+pythonVersion = "3.13"
 ```
 
-This is an empty section for now. ty works with sensible defaults. We're leaving it here as a placeholder so you know where to configure it later.
+**What this does:**
+- `pythonVersion` tells basedpyright which Python version to check against.
+- basedpyright will automatically find and use `django-types` stubs since they're installed in the virtualenv.
 
 - [ ] **Step 3: Test ruff on existing code**
 
@@ -483,19 +487,19 @@ uv run ruff check --fix .
 uv run ruff format .
 ```
 
-- [ ] **Step 4: Test ty on existing code**
+- [ ] **Step 4: Test basedpyright on existing code**
 
 ```bash
-uv run ty check
+uv run basedpyright
 ```
 
-Expected: May produce some diagnostics. Note them — ty is still early and can be noisy on Django code.
+Expected: May produce some diagnostics on Django's generated code. Note them — some may need type annotations or `# type: ignore` comments.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add pyproject.toml project/
-git commit -m "chore: configure ruff and ty"
+git commit -m "chore: configure ruff and basedpyright"
 ```
 
 Note: `git add project/` stages any formatting fixes ruff made to Django files.
@@ -523,9 +527,9 @@ repos:
         entry: uv run --no-sync ruff format
         language: system
         types: [python]
-      - id: ty-check
-        name: ty check
-        entry: uv run --no-sync ty check
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run --no-sync basedpyright
         language: system
         types: [python]
         pass_filenames: false
@@ -536,7 +540,7 @@ repos:
 - `entry: uv run --no-sync ...` — runs the tool via uv. `--no-sync` prevents uv from checking/installing deps on every commit (faster).
 - `language: system` — tells pre-commit the command is already available on the system.
 - `types: [python]` — only runs on `.py` files.
-- `pass_filenames: false` on ty — ty checks the whole project, not individual files.
+- `pass_filenames: false` on basedpyright — it checks the whole project, not individual files.
 
 - [ ] **Step 2: Install the hooks**
 
@@ -560,7 +564,7 @@ Expected: All three hooks run and (hopefully) pass. If ruff finds issues, it wil
 
 ```bash
 git add .pre-commit-config.yaml
-git commit -m "chore: add pre-commit hooks for ruff and ty"
+git commit -m "chore: add pre-commit hooks for ruff and basedpyright"
 ```
 
 ---
@@ -621,7 +625,7 @@ tasks:
   typecheck:
     desc: Run type checker
     cmds:
-      - uv run ty check
+      - uv run basedpyright
 
   test:
     desc: Run Django tests
@@ -820,7 +824,7 @@ task lint
 task typecheck
 ```
 
-Expected: No errors from ruff. ty may have some diagnostics on Django code — that's expected (ty is still early).
+Expected: No errors from ruff. basedpyright may have some diagnostics — address any that are real issues, suppress with `# type: ignore` if they're false positives.
 
 - [ ] **Step 5: Start the dev server**
 

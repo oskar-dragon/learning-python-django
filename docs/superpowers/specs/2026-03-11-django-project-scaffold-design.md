@@ -15,7 +15,7 @@ learning-python-django/
 ├── .pre-commit-config.yaml
 ├── .env                      # local dev secrets (git-ignored)
 ├── .env.example              # template (committed)
-├── pyproject.toml            # dependencies, ruff config, ty config
+├── pyproject.toml            # dependencies, ruff config, basedpyright config
 ├── uv.lock
 ├── manage.py                 # Django entry point (moved to repo root)
 ├── docker-compose.yml        # PostgreSQL
@@ -49,7 +49,8 @@ Python 3.13.12 via uv. The `.python-version` file is read by uv automatically.
 
 ### Dev
 - `ruff` — linting and formatting
-- `ty` — type checking
+- `basedpyright` — type checking (pyright fork with stricter defaults)
+- `django-types` — type stubs for Django (designed for pyright/basedpyright)
 - `pre-commit` — git hook framework
 
 ## Tooling Configuration
@@ -61,15 +62,16 @@ All in `pyproject.toml`:
 - Target Python version matching `.python-version`
 - Formatting enabled (replaces black + isort)
 
-### ty
-- Default configuration (no strict mode) — ty is still early, keep it simple
-- Configured in `[tool.ty]` section of `pyproject.toml`
+### basedpyright
+- Configured in `[tool.basedpyright]` section of `pyproject.toml`
+- `pythonVersion = "3.13"`
+- Uses `django-types` for Django-specific type stubs (model fields, querysets, managers, etc.)
 
 ### Pre-commit (`.pre-commit-config.yaml`)
 Uses local hooks via `uv run` so the project's pinned tool versions are used (not separate pre-commit-managed copies):
 1. `uv run ruff check --fix` — lint with auto-fix
 2. `uv run ruff format` — formatting
-3. `uv run ty check` — type checking
+3. `uv run basedpyright` — type checking
 
 ## Database
 
@@ -103,7 +105,7 @@ PostgreSQL 17 in Docker Compose.
 | `task db:makemigrations` | `uv run manage.py makemigrations` | Create new migrations |
 | `task lint` | `uv run ruff check . && uv run ruff format --check .` | Check linting + formatting |
 | `task lint:fix` | `uv run ruff check --fix . && uv run ruff format .` | Fix linting + format code |
-| `task typecheck` | `uv run ty check` | Run type checker |
+| `task typecheck` | `uv run basedpyright` | Run type checker |
 | `task test` | `uv run manage.py test` | Run Django tests |
 | `task setup` | Install deps, `pre-commit install`, copy .env.example to .env (skip if exists), generate SECRET_KEY, start db, migrate | One-time project setup |
 
