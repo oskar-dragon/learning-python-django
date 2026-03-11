@@ -1,0 +1,81 @@
+version: "3"
+
+tasks:
+  dev:
+    desc: Start database and Django dev server
+    deps: [db:start]
+    cmds:
+      - uv run manage.py runserver
+
+  db:start:
+    desc: Start PostgreSQL container
+    cmds:
+      - docker compose up -d
+
+  db:stop:
+    desc: Stop PostgreSQL container
+    cmds:
+      - docker compose down
+
+  db:migrate:
+    desc: Run Django migrations
+    cmds:
+      - uv run manage.py migrate
+
+  db:makemigrations:
+    desc: Create new Django migrations
+    cmds:
+      - uv run manage.py makemigrations
+
+  lint:
+    desc: Check linting and formatting
+    cmds:
+      - uv run ruff check .
+      - uv run ruff format --check .
+
+  lint:fix:
+    desc: Fix linting issues and format code
+    cmds:
+      - uv run ruff check --fix .
+      - uv run ruff format .
+
+  typecheck:
+    desc: Run type checker
+    cmds:
+      - uv run basedpyright
+
+  test:
+    desc: Run Django tests
+    cmds:
+      - uv run manage.py test
+
+  setup:
+    desc: One-time project setup
+    cmds:
+      - uv sync
+      - uv run pre-commit install
+      - cmd: cp .env.example .env
+        ignore_error: true
+      - task: _generate-secret-key
+      - task: db:start
+      - uv run manage.py migrate
+
+  _generate-secret-key:
+    desc: Generate SECRET_KEY in .env if it's still the placeholder
+    internal: true
+    cmds:
+      - |
+        if grep -q "change-me-to-a-real-secret-key" .env 2>/dev/null; then
+          uv run python -c "
+        from django.core.management.utils import get_random_secret_key
+        key = get_random_secret_key()
+        with open('.env', 'r') as f:
+            content = f.read()
+        content = content.replace('change-me-to-a-real-secret-key', key)
+        with open('.env', 'w') as f:
+            f.write(content)
+          "
+          echo "Generated new SECRET_KEY"
+        else
+          echo "SECRET_KEY already set, skipping"
+        fi
