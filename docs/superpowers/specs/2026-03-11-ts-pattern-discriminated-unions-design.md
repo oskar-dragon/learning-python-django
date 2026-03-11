@@ -19,7 +19,7 @@ Option B: existing generated types + inline placeholder types. No separate fixtu
 ## Files
 
 - `client/src/ts-pattern/posts.ts` — the examples
-- `client/tsconfig.json` — must be created (no tsconfig currently exists in the repo); should cover `client/src/**` with `strict: true` and a module resolution compatible with the bun/ESM setup
+- `client/tsconfig.json` — already created by `bun init`; covers all `.ts` files under `client/` with `strict: true` and bundler module resolution
 
 ## Dependency
 
