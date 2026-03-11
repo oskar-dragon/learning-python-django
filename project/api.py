@@ -1,9 +1,7 @@
-from django.http import HttpRequest
 from ninja import NinjaAPI
+
+from blog.api import router as blog_router
 
 api = NinjaAPI()
 
-
-@api.get("/health")
-def health(request: HttpRequest) -> dict[str, str]:  # pyright: ignore[reportUnusedParameter]
-    return {"status": "ok"}
+api.add_router("/blog", blog_router)

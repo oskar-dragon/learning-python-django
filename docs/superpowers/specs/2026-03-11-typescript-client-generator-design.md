@@ -46,6 +46,7 @@ export default defineConfig({
 ## Gitignore Additions
 
 Add to root `.gitignore`:
+
 ```
 client/openapi.json
 client/src/
