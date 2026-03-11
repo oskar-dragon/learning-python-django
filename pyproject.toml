@@ -33,6 +33,7 @@ pythonVersion = "3.13"
 venvPath = "."
 venv = ".venv"
 exclude = ["**/migrations", ".venv"]
+reportUnusedParameter = false
 reportImplicitStringConcatenation = false
 reportUnannotatedClassAttribute = false
 reportAny = false
