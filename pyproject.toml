@@ -29,4 +29,6 @@ select = ["E", "F", "I", "DJ"]
 
 [tool.basedpyright]
 pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
 reportImplicitStringConcatenation = false

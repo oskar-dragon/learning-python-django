@@ -1,0 +1,16 @@
+{
+  "languages": {
+    "Python": {
+      "language_servers": ["basedpyright", "!pyright", "ruff"],
+    },
+  },
+  "lsp": {
+    "basedpyright": {
+      "settings": {
+        "python": {
+          "pythonPath": ".venv/bin/python",
+        },
+      },
+    },
+  },
+}
