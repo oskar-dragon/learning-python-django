@@ -57,17 +57,19 @@ Python 3.13.12 via uv. The `.python-version` file is read by uv automatically.
 All in `pyproject.toml`:
 
 ### Ruff
-- Linting with Django-relevant rules (DJ rule set)
-- Formatting (replaces black + isort)
+- Rule sets: `select = ["E", "F", "I", "DJ"]` (pycodestyle errors, pyflakes, isort, Django-specific)
+- Target Python version matching `.python-version`
+- Formatting enabled (replaces black + isort)
 
 ### ty
-- Type checking configured in `pyproject.toml`
+- Default configuration (no strict mode) — ty is still early, keep it simple
+- Configured in `[tool.ty]` section of `pyproject.toml`
 
 ### Pre-commit (`.pre-commit-config.yaml`)
-Runs on every commit:
-1. `ruff check --fix` — lint with auto-fix
-2. `ruff format` — formatting
-3. `ty check` — type checking
+Uses local hooks via `uv run` so the project's pinned tool versions are used (not separate pre-commit-managed copies):
+1. `uv run ruff check --fix` — lint with auto-fix
+2. `uv run ruff format` — formatting
+3. `uv run ty check` — type checking
 
 ## Database
 
@@ -77,7 +79,7 @@ PostgreSQL 17 in Docker Compose.
 - PostgreSQL 17 image
 - Persistent named volume for data
 - Exposed on port 5432
-- Credentials via environment variables in the compose file
+- Hardcoded credentials in the compose file: `POSTGRES_USER=postgres`, `POSTGRES_PASSWORD=postgres`, `POSTGRES_DB=learning_django`
 
 ### Environment Variables
 - `.env` file at repo root (git-ignored) with:
@@ -85,8 +87,10 @@ PostgreSQL 17 in Docker Compose.
   - `SECRET_KEY=<generated-dev-key>`
   - `DEBUG=True`
 - `.env.example` committed as a template with placeholder values
-- `python-dotenv` loads `.env` in `settings.py`
+- `python-dotenv` loaded at top of `settings.py` via `load_dotenv(BASE_DIR / ".env")`
 - `dj-database-url` parses `DATABASE_URL` into Django's `DATABASES` dict
+- If `DATABASE_URL` is not set, the app should fail loudly (no silent fallback to SQLite)
+- `ALLOWED_HOSTS` set to `["localhost", "127.0.0.1"]` for local dev (read from `.env`)
 
 ## Taskfile
 
@@ -101,7 +105,7 @@ PostgreSQL 17 in Docker Compose.
 | `task lint:fix` | `uv run ruff check --fix . && uv run ruff format .` | Fix linting + format code |
 | `task typecheck` | `uv run ty check` | Run type checker |
 | `task test` | `uv run manage.py test` | Run Django tests |
-| `task setup` | Install deps, copy .env.example, start db, migrate | One-time project setup |
+| `task setup` | Install deps, `pre-commit install`, copy .env.example to .env (skip if exists), generate SECRET_KEY, start db, migrate | One-time project setup |
 
 All commands use `uv run` so the virtualenv is handled automatically.
 
