@@ -6,7 +6,7 @@
 
 **Architecture:** Django Ninja's `export_openapi_schema` management command dumps the OpenAPI schema to `client/openapi.json`. Hey API's `@hey-api/openapi-ts` reads that file and generates TypeScript types and SDK into `client/src/`. Both artifacts are gitignored. The Taskfile task orchestrates the whole flow. All `uv run manage.py` commands must be run from the repo root (where `manage.py` lives).
 
-**Tech Stack:** Django Ninja, Bun, `@hey-api/openapi-ts`, `@hey-api/client-fetch`, `@hey-api/typescript`, `@hey-api/sdk`
+**Tech Stack:** Django Ninja, Bun, `@hey-api/openapi-ts`, `@hey-api/client-fetch` (note: `@hey-api/typescript` and `@hey-api/sdk` are built-in plugin identifiers within `@hey-api/openapi-ts`, not separate npm packages)
 
 ---
 
@@ -23,7 +23,7 @@
 
 - [ ] **Step 1: Create the file**
 
-`@hey-api/client-fetch` is a runtime dependency (used by the generated client). The codegen plugins (`@hey-api/openapi-ts`, `@hey-api/typescript`, `@hey-api/sdk`) are dev dependencies.
+`@hey-api/client-fetch` is a runtime dependency (used by the generated client). `@hey-api/openapi-ts` is the only dev dependency needed — `@hey-api/typescript` and `@hey-api/sdk` are built-in plugin identifiers within it, not separate npm packages.
 
 ```json
 {
@@ -33,9 +33,7 @@
     "@hey-api/client-fetch": "latest"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "latest",
-    "@hey-api/typescript": "latest",
-    "@hey-api/sdk": "latest"
+    "@hey-api/openapi-ts": "latest"
   }
 }
 ```
