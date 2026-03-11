@@ -60,6 +60,13 @@ tasks:
       - task: db:start
       - uv run manage.py migrate
 
+  generate:client:
+    desc: Export OpenAPI schema and generate TypeScript client
+    cmds:
+      - uv run manage.py export_openapi_schema > client/openapi.json
+      - cd client && bun install
+      - cd client && bunx @hey-api/openapi-ts
+
   _generate-secret-key:
     desc: Generate SECRET_KEY in .env if it's still the placeholder
     internal: true
