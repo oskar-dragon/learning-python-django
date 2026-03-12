@@ -162,9 +162,9 @@ export type AvailableProductSchema = {
      */
     tag: 'available';
     /**
-     * Id
+     * ID
      */
-    id: number;
+    id?: number | null;
     /**
      * Name
      */
@@ -180,7 +180,7 @@ export type AvailableProductSchema = {
     /**
      * Stock Count
      */
-    stock_count: number;
+    stock_count?: number;
 };
 
 /**
@@ -194,9 +194,9 @@ export type OutOfStockProductSchema = {
      */
     tag: 'out_of_stock';
     /**
-     * Id
+     * ID
      */
-    id: number;
+    id?: number | null;
     /**
      * Name
      */
@@ -210,6 +210,13 @@ export type OutOfStockProductSchema = {
      */
     price: string;
 };
+
+/**
+ * ProductResult
+ *
+ * Named discriminated union for product success responses.
+ */
+export type ProductResult = AvailableProductSchema | OutOfStockProductSchema;
 
 /**
  * ProductNotFoundError
@@ -389,11 +396,7 @@ export type ProductsApiListProductsResponses = {
      *
      * OK
      */
-    200: Array<({
-        tag: 'available';
-    } & AvailableProductSchema) | ({
-        tag: 'out_of_stock';
-    } & OutOfStockProductSchema)>;
+    200: Array<ProductResult>;
 };
 
 export type ProductsApiListProductsResponse = ProductsApiListProductsResponses[keyof ProductsApiListProductsResponses];
@@ -425,15 +428,9 @@ export type ProductsApiGetProductError = ProductsApiGetProductErrors[keyof Produ
 
 export type ProductsApiGetProductResponses = {
     /**
-     * Response
-     *
      * OK
      */
-    200: ({
-        tag: 'available';
-    } & AvailableProductSchema) | ({
-        tag: 'out_of_stock';
-    } & OutOfStockProductSchema);
+    200: ProductResult;
 };
 
 export type ProductsApiGetProductResponse = ProductsApiGetProductResponses[keyof ProductsApiGetProductResponses];
