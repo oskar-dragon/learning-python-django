@@ -182,7 +182,7 @@ export type CancelledOrderSchema = {
     /**
      * Tag
      */
-    tag?: 'cancelled';
+    tag: 'cancelled';
     /**
      * Id
      */
@@ -225,7 +225,7 @@ export type PendingOrderSchema = {
     /**
      * Tag
      */
-    tag?: 'pending';
+    tag: 'pending';
     /**
      * Id
      */
@@ -255,7 +255,7 @@ export type ShippedOrderSchema = {
     /**
      * Tag
      */
-    tag?: 'shipped';
+    tag: 'shipped';
     /**
      * Id
      */
@@ -293,7 +293,7 @@ export type OrderNotFoundError = {
     /**
      * Tag
      */
-    tag?: 'order_not_found';
+    tag: 'order_not_found';
     /**
      * Detail
      */
@@ -311,7 +311,7 @@ export type OrderNotAccessibleError = {
     /**
      * Tag
      */
-    tag?: 'order_not_accessible';
+    tag: 'order_not_accessible';
     /**
      * Detail
      */

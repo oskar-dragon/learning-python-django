@@ -14,6 +14,7 @@ def _to_schema(order: Order) -> OrderQueryResult:
     match order.status:
         case Order.Status.PENDING:
             return PendingOrderSchema(
+                tag="pending",
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,
@@ -22,6 +23,7 @@ def _to_schema(order: Order) -> OrderQueryResult:
             )
         case Order.Status.SHIPPED:
             return ShippedOrderSchema(
+                tag="shipped",
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,
@@ -32,6 +34,7 @@ def _to_schema(order: Order) -> OrderQueryResult:
             )
         case Order.Status.CANCELLED:
             return CancelledOrderSchema(
+                tag="cancelled",
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,

@@ -10,7 +10,7 @@ from orders.models import Order
 
 
 class PendingOrderSchema(TaggedSchema):
-    tag: Literal["pending"] = "pending"
+    tag: Literal["pending"]
     id: int
     customer_name: str
     items_count: int
@@ -19,7 +19,7 @@ class PendingOrderSchema(TaggedSchema):
 
 
 class ShippedOrderSchema(TaggedSchema):
-    tag: Literal["shipped"] = "shipped"
+    tag: Literal["shipped"]
     id: int
     customer_name: str
     items_count: int
@@ -30,7 +30,7 @@ class ShippedOrderSchema(TaggedSchema):
 
 
 class CancelledOrderSchema(TaggedSchema):
-    tag: Literal["cancelled"] = "cancelled"
+    tag: Literal["cancelled"]
     id: int
     customer_name: str
     items_count: int
@@ -45,12 +45,12 @@ class OrderResult(RootModel[PendingOrderSchema | ShippedOrderSchema | CancelledO
 
 
 class OrderNotFoundError(AppError):
-    tag: Literal["order_not_found"] = "order_not_found"
+    tag: Literal["order_not_found"]
     id: int
 
 
 class OrderNotAccessibleError(AppError):
-    tag: Literal["order_not_accessible"] = "order_not_accessible"
+    tag: Literal["order_not_accessible"]
     id: int
 
 
