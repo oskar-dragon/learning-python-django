@@ -85,13 +85,13 @@ class ProductsListAPITest(TestCase):
 
     def test_available_product_includes_stock_count(self) -> None:
         response = self.client.get("/api/products/", HTTP_AUTHORIZATION=self.token)
-        available = next(p for p in response.json() if p["status"] == "available")
+        available = next(p for p in response.json() if p["tag"] == "available")
         self.assertIn("stock_count", available)
         self.assertEqual(available["stock_count"], 10)
 
     def test_out_of_stock_product_excludes_stock_count(self) -> None:
         response = self.client.get("/api/products/", HTTP_AUTHORIZATION=self.token)
-        oos = next(p for p in response.json() if p["status"] == "out_of_stock")
+        oos = next(p for p in response.json() if p["tag"] == "out_of_stock")
         self.assertNotIn("stock_count", oos)
 
 
@@ -138,14 +138,14 @@ class ProductsDetailAPITest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["status"], "available")
+        self.assertEqual(data["tag"], "available")
         self.assertIn("stock_count", data)
 
     def test_get_out_of_stock_product(self) -> None:
         response = self.client.get(f"/api/products/{self.oos.pk}/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["status"], "out_of_stock")
+        self.assertEqual(data["tag"], "out_of_stock")
         self.assertNotIn("stock_count", data)
 
     def test_get_hidden_product_returns_403(self) -> None:
@@ -154,12 +154,12 @@ class ProductsDetailAPITest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         data = response.json()
-        self.assertEqual(data["type"], "product_hidden")
+        self.assertEqual(data["tag"], "product_hidden")
         self.assertEqual(data["id"], self.hidden.pk)
 
     def test_get_nonexistent_product_returns_404(self) -> None:
         response = self.client.get("/api/products/99999/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 404)
         data = response.json()
-        self.assertEqual(data["type"], "product_not_found")
+        self.assertEqual(data["tag"], "product_not_found")
         self.assertEqual(data["id"], 99999)
