@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import Field
@@ -12,7 +13,7 @@ class AvailableProductSchema(TaggedSchema):
     id: int
     name: str
     description: str
-    price: str
+    price: Decimal
     stock_count: int | None = None
 
 
@@ -23,7 +24,7 @@ class OutOfStockProductSchema(TaggedSchema):
     id: int
     name: str
     description: str
-    price: str
+    price: Decimal
 
 
 ProductResult = tagged_union(AvailableProductSchema, OutOfStockProductSchema)
