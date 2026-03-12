@@ -1,33 +1,38 @@
-from decimal import Decimal
 from typing import Literal
 
-from pydantic import Field
+from ninja import ModelSchema
+from pydantic import ConfigDict, Field, RootModel
 
-from core.schemas import AppError, TaggedSchema, tagged_union
+from core.schemas import AppError
+from products.models import Product
 
 
-class AvailableProductSchema(TaggedSchema):
+class AvailableProductSchema(ModelSchema):
     """Available product — has stock_count. tag maps from ORM's status field."""
 
+    model_config = ConfigDict(populate_by_name=True)
     tag: Literal["available"] = Field(validation_alias="status")
-    id: int
-    name: str
-    description: str
-    price: Decimal
-    stock_count: int
+
+    class Meta:
+        model = Product
+        exclude = ["status", "created", "updated"]
 
 
-class OutOfStockProductSchema(TaggedSchema):
+class OutOfStockProductSchema(ModelSchema):
     """Out-of-stock product — no stock_count. tag maps from ORM's status field."""
 
+    model_config = ConfigDict(populate_by_name=True)
     tag: Literal["out_of_stock"] = Field(validation_alias="status")
-    id: int
-    name: str
-    description: str
-    price: Decimal
+
+    class Meta:
+        model = Product
+        exclude = ["status", "stock_count", "created", "updated"]
 
 
-ProductResult = tagged_union(AvailableProductSchema, OutOfStockProductSchema)
+class ProductResult(RootModel[AvailableProductSchema | OutOfStockProductSchema]):
+    """Named discriminated union for product success responses."""
+
+    pass
 
 
 class ProductNotFoundError(AppError):
