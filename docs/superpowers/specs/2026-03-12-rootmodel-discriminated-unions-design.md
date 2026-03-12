@@ -79,14 +79,14 @@ class AvailableProductSchema(TaggedModelSchema):
 
     class Meta:
         model = Product
-        exclude = ["status"]
+        exclude = ["status", "created", "updated"]
 
 class OutOfStockProductSchema(TaggedModelSchema):
     tag: Literal["out_of_stock"] = Field(validation_alias="status")
 
     class Meta:
         model = Product
-        exclude = ["status", "stock_count"]
+        exclude = ["status", "stock_count", "created", "updated"]
 ```
 
 **`RootModel` for named union** — this is the key change. Instead of a type alias, `ProductResult` is a proper Pydantic model class. Django Ninja registers it as a named `$ref` component in OpenAPI.
@@ -100,39 +100,31 @@ The OpenAPI output uses `anyOf` without a `discriminator` key. This causes hey-a
 
 TypeScript narrowing still works because each individual schema has `tag` as a unique literal type.
 
-**Error schemas** — unchanged, inherit `AppError` (which inherits `TaggedSchema`):
+**Error schemas** — unchanged, inherit `AppError` (which inherits `TaggedSchema`). No default on `tag` — keeps it required in OpenAPI so hey-api generates `tag: 'product_not_found'` (not optional). Handler dicts must provide `"tag"` explicitly (they already do).
 
 ```python
 class ProductNotFoundError(AppError):
-    tag: Literal["product_not_found"] = "product_not_found"
+    tag: Literal["product_not_found"]
     id: int
 
 class ProductHiddenError(AppError):
-    tag: Literal["product_hidden"] = "product_hidden"
+    tag: Literal["product_hidden"]
     id: int
 ```
 
 ### Products API (`products/api.py`)
 
+Handler logic is unchanged from the current implementation. The only change is the response type annotations — `ProductResult` (the `RootModel` subclass) replaces the inline `tagged_union()` type alias:
+
 ```python
 @router.get("/", response=list[ProductResult])
-def list_products(request):
-    return list(Product.objects.exclude(status=Product.Status.HIDDEN))
+# ...
 
 @router.get(
     "/{product_id}/",
     response={200: ProductResult, 404: ProductNotFoundError, 403: ProductHiddenError},
 )
-def get_product(request, product_id: int):
-    try:
-        product = Product.objects.get(id=product_id)
-    except Product.DoesNotExist:
-        return 404, {"tag": "product_not_found", "detail": f"Product {product_id} not found", "id": product_id}
-
-    if product.status == "hidden":
-        return 403, {"tag": "product_hidden", "detail": f"Product {product_id} is not available", "id": product_id}
-
-    return 200, product
+# ...
 ```
 
 Pydantic picks `AvailableProductSchema` or `OutOfStockProductSchema` automatically based on `product.status`.
@@ -140,9 +132,9 @@ Pydantic picks `AvailableProductSchema` or `OutOfStockProductSchema` automatical
 ### Generated TypeScript (via hey-api)
 
 ```typescript
-// Individual schemas — tag is a literal type
-type AvailableProductSchema  = { tag: 'available'; id: number; stock_count: number; ... }
-type OutOfStockProductSchema = { tag: 'out_of_stock'; id: number; ... }
+// Individual schemas — tag is a literal type, fields derived from model via ModelSchema
+type AvailableProductSchema  = { tag: 'available'; id: number; name: string; description: string; price: string; stock_count: number }
+type OutOfStockProductSchema = { tag: 'out_of_stock'; id: number; name: string; description: string; price: string }
 
 // Named union from RootModel — clean, no intersections
 type ProductResult = AvailableProductSchema | OutOfStockProductSchema;
