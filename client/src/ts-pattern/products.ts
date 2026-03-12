@@ -1,8 +1,6 @@
 import { match } from "ts-pattern";
 import type {
   ProductResult,
-  ProductHiddenError,
-  ProductNotFoundError,
   ProductsApiGetProductError,
 } from "../generated/types.gen";
 
@@ -12,8 +10,14 @@ import type {
 // would be a compile error.
 function describeProduct(product: ProductResult): string {
   return match(product)
-    .with({ tag: "available" }, (p) => `Available: ${p.name} — ${p.stock_count} in stock at $${p.price}`)
-    .with({ tag: "out_of_stock" }, (p) => `Out of stock: ${p.name} at $${p.price}`)
+    .with(
+      { tag: "available" },
+      (p) => `Available: ${p.name} — ${p.stock_count} in stock at $${p.price}`,
+    )
+    .with(
+      { tag: "out_of_stock" },
+      (p) => `Out of stock: ${p.name} at $${p.price}`,
+    )
     .exhaustive();
 }
 
@@ -21,18 +25,27 @@ function describeProduct(product: ProductResult): string {
 // Uses the generated error union type — no manual assembly.
 function describeError(error: ProductsApiGetProductError): string {
   return match(error)
-    .with({ tag: "product_not_found" }, (e) => `Product ${e.id} not found: ${e.detail}`)
-    .with({ tag: "product_hidden" }, (e) => `Product ${e.id} is restricted: ${e.detail}`)
+    .with(
+      { tag: "product_not_found" },
+      (e) => `Product ${e.id} not found: ${e.detail}`,
+    )
+    .with(
+      { tag: "product_hidden" },
+      (e) => `Product ${e.id} is restricted: ${e.detail}`,
+    )
     .exhaustive();
 }
 
 // Example 3: combined success + error match in one exhaustive chain.
 // Demonstrates the realistic usage pattern after calling productsApiGetProduct().
 function handleProductResult(
-  result: ProductResult | ProductsApiGetProductError
+  result: ProductResult | ProductsApiGetProductError,
 ): string {
   return match(result)
-    .with({ tag: "available" }, (p) => `Available: ${p.name} (${p.stock_count} left)`)
+    .with(
+      { tag: "available" },
+      (p) => `Available: ${p.name} (${p.stock_count} left)`,
+    )
     .with({ tag: "out_of_stock" }, (p) => `Sold out: ${p.name}`)
     .with({ tag: "product_not_found" }, (e) => `Not found: product ${e.id}`)
     .with({ tag: "product_hidden" }, (e) => `Restricted: product ${e.id}`)
