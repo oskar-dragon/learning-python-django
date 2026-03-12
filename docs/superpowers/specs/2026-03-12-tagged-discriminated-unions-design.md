@@ -74,25 +74,27 @@ Currently all product schemas live in `products/api.py`. As part of this change,
 
 All four schemas are updated. **Note:** the current schemas use Django Ninja's `ModelSchema` (automatic field derivation from the Django model). We drop `ModelSchema` in favour of explicit `TaggedSchema`-based schemas. Tradeoff: fields must be declared explicitly, but we gain full control over discriminated union shape. If the `Product` model gains new fields, they will not automatically appear in the schema.
 
-**Success schemas** — `validation_alias="status"` maps the Django ORM object's `status` attribute to the `tag` field at validation time. `default` ensures the correct literal is set when constructing directly. Requires `from_attributes=True` which is provided by inheriting from `ninja.Schema` via `TaggedSchema`.
+**Success schemas** — `validation_alias="status"` maps the Django ORM object's `status` attribute to the `tag` field at validation time. No `default` is set — this keeps `tag` in the OpenAPI `required` array, so hey-api generates `tag: 'available'` (required) rather than `tag?: 'available'` (optional). Requires `from_attributes=True` which is provided by inheriting from `ninja.Schema` via `TaggedSchema`.
 
-Note: direct construction requires `status=` as the kwarg (not `tag=`), since `validation_alias` controls which input key is accepted. ORM serialization is unaffected.
+Note: `populate_by_name=True` (set on `TaggedSchema`) means both `status=` and `tag=` are accepted at construction time.
+
+`price` uses `Decimal` (matching the model's `DecimalField`) rather than `str` — Decimal serializes as a JSON string on the wire but is the semantically correct Python type. `stock_count` is `int` (not `int | None`) — the model declares `PositiveIntegerField(default=0)`, never nullable.
 
 ```python
 class AvailableProductSchema(TaggedSchema):
-    tag: Literal["available"] = Field(validation_alias="status", default="available")
+    tag: Literal["available"] = Field(validation_alias="status")
     id: int
     name: str
     description: str
-    price: str
-    stock_count: int | None = None
+    price: Decimal
+    stock_count: int
 
 class OutOfStockProductSchema(TaggedSchema):
-    tag: Literal["out_of_stock"] = Field(validation_alias="status", default="out_of_stock")
+    tag: Literal["out_of_stock"] = Field(validation_alias="status")
     id: int
     name: str
     description: str
-    price: str
+    price: Decimal
 ```
 
 **Named success union:**
