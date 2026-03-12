@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "ninja_extra",
     "ninja_jwt",
     "blog.apps.BlogConfig",
+    "products.apps.ProductsConfig",
 ]
 
 MIDDLEWARE = [
