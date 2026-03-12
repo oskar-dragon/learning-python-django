@@ -14,7 +14,7 @@ class AvailableProductSchema(TaggedSchema):
     name: str
     description: str
     price: Decimal
-    stock_count: int | None = None
+    stock_count: int
 
 
 class OutOfStockProductSchema(TaggedSchema):
