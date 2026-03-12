@@ -11,7 +11,7 @@ router = Router()
 
 
 class PostNotFoundError(AppError):
-    tag: Literal["post_not_found"] = "post_not_found"
+    tag: Literal["post_not_found"]
     id: int
 
 

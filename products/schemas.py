@@ -9,7 +9,7 @@ from core.schemas import AppError, TaggedSchema, tagged_union
 class AvailableProductSchema(TaggedSchema):
     """Available product — has stock_count. tag maps from ORM's status field."""
 
-    tag: Literal["available"] = Field(validation_alias="status", default="available")
+    tag: Literal["available"] = Field(validation_alias="status")
     id: int
     name: str
     description: str
@@ -20,7 +20,7 @@ class AvailableProductSchema(TaggedSchema):
 class OutOfStockProductSchema(TaggedSchema):
     """Out-of-stock product — no stock_count. tag maps from ORM's status field."""
 
-    tag: Literal["out_of_stock"] = Field(validation_alias="status", default="out_of_stock")
+    tag: Literal["out_of_stock"] = Field(validation_alias="status")
     id: int
     name: str
     description: str
@@ -31,10 +31,10 @@ ProductResult = tagged_union(AvailableProductSchema, OutOfStockProductSchema)
 
 
 class ProductNotFoundError(AppError):
-    tag: Literal["product_not_found"] = "product_not_found"
+    tag: Literal["product_not_found"]
     id: int
 
 
 class ProductHiddenError(AppError):
-    tag: Literal["product_hidden"] = "product_hidden"
+    tag: Literal["product_hidden"]
     id: int
