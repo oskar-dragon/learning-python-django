@@ -1,0 +1,17 @@
+{
+  "name": "client",
+  "private": true,
+  "dependencies": {
+    "@hey-api/client-fetch": "latest",
+    "ts-pattern": "latest"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "latest",
+    "@types/bun": "latest"
+  },
+  "module": "src/index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

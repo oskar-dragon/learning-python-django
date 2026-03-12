@@ -12,3 +12,6 @@ __pycache__/
 # Django
 staticfiles/
 media/
+
+# Hey API client generator artifacts
+client/node_modules/
