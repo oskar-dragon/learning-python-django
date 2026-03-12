@@ -1,8 +1,5 @@
-import functools
-from typing import Annotated, Union  # pyright: ignore[reportDeprecated]
-
 from ninja import Schema
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict
 
 
 class TaggedSchema(Schema):
@@ -16,9 +13,3 @@ class AppError(TaggedSchema):
     """Base for all API error responses. Subclasses narrow tag to a Literal."""
 
     detail: str
-
-
-def tagged_union(*schemas: type[TaggedSchema]):
-    """Build a Pydantic discriminated union keyed on `tag`. Usage: tagged_union(A, B, C)."""
-    union = functools.reduce(lambda a, b: Union[a, b], schemas)  # pyright: ignore[reportArgumentType,reportDeprecated]
-    return Annotated[union, Field(discriminator="tag")]
