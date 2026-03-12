@@ -49,8 +49,8 @@ def list_orders(filters: OrderFilters) -> list[OrderQueryResult]:
     # Draft orders are always excluded — they are an internal status not exposed to consumers.
     # list_orders never raises OrderNotFound/OrderNotAccessible: filters simply narrow results.
     qs = Order.objects.exclude(status=Order.Status.DRAFT)
-    qs = filters.filter(qs)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
-    return [_to_schema(order) for order in qs]  # pyright: ignore[reportUnknownArgumentType, reportUnknownVariableType]
+    qs = filters.filter(qs)
+    return [_to_schema(order) for order in qs]
 
 
 def get_order(order_id: int) -> OrderQueryResult:

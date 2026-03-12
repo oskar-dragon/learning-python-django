@@ -4,6 +4,7 @@ from ninja_jwt.controller import NinjaJWTDefaultController
 
 from blog.api import router as blog_router
 from core.exceptions import AppException
+from orders.api import router as orders_router
 from products.api import router as products_router
 
 api = NinjaExtraAPI()
@@ -16,4 +17,5 @@ def handle_app_exception(request: HttpRequest, exc: AppException) -> HttpRespons
 
 
 api.add_router("/blog", blog_router)
+api.add_router("/orders", orders_router)
 api.add_router("/products", products_router)

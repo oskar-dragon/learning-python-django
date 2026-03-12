@@ -70,7 +70,7 @@ class OrdersListAPITest(TestCase):
         _ = _create_order(
             "Charlie",
             Order.Status.CANCELLED,
-            total_price="75.00",
+            total_price="150.00",
             cancellation_reason="Changed mind",
             cancelled_at="2026-01-02T10:00:00Z",
         )

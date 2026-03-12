@@ -2,9 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 
-from ninja.schema import (
-    FilterSchema,  # pyright: ignore[reportAttributeAccessIssue, reportUnknownVariableType]
-)
+from ninja.filter_schema import FilterSchema
 from pydantic import Field, RootModel
 
 from core.schemas import AppError, TaggedSchema
@@ -56,7 +54,7 @@ class OrderNotAccessibleError(AppError):
     id: int
 
 
-class OrderFilters(FilterSchema):  # pyright: ignore[reportUntypedBaseClass]
+class OrderFilters(FilterSchema):
     status: Order.Status | None = None
     q: str | None = Field(None, q=["customer_name__icontains"])  # pyright: ignore[reportCallIssue, reportUnknownVariableType]
     min_total: Decimal | None = Field(None, q="total_price__gte")  # pyright: ignore[reportCallIssue, reportUnknownVariableType]
