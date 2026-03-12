@@ -3,7 +3,7 @@ import type {
   DraftPostSchema,
   PublishedPostSchema,
   PostNotFoundError,
-} from "../types.gen";
+} from "../generated/types.gen";
 
 // Local alias for the post union type.
 // The Hey API generator expresses this inline in response types;
@@ -38,12 +38,13 @@ function describePost(post: PostSchema): string {
 }
 
 // Example 2: match on errors only.
-// Demonstrates: multi-error matching — each error variant has its own `type` discriminant.
+// Demonstrates: multi-error matching — PostNotFoundError uses `tag` as its discriminant
+// (generated from the backend's TaggedSchema), while local placeholder errors use `type`.
 // `.exhaustive()` ensures all three error types are handled.
 function describeError(error: ApiError): string {
   return match(error)
     .with(
-      { type: "post_not_found" },
+      { tag: "post_not_found" },
       (e) => `Post ${e.id} not found: ${e.detail}`,
     )
     .with({ type: "auth_error" }, (e) => `Auth error: ${e.message}`)
@@ -63,7 +64,7 @@ function handlePostResult(result: PostSchema | ApiError): string {
     .with({ status: "DF" }, (p) => `Draft: ${p.title}`)
     .with({ status: "PB" }, (p) => `Published: ${p.title}`)
     .with(
-      { type: "post_not_found" },
+      { tag: "post_not_found" },
       (e) => `Not found: post ${e.id} — ${e.detail}`,
     )
     .with({ type: "auth_error" }, (e) => `Unauthorized: ${e.message}`)
