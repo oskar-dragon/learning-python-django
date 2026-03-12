@@ -65,9 +65,7 @@ tasks:
     cmds:
       - uv run manage.py export_openapi_schema > client/openapi.json
       - cd client && bun install
-      - cp -r client/src/ts-pattern /tmp/ts-pattern-backup
       - cd client && bunx @hey-api/openapi-ts
-      - cp -r /tmp/ts-pattern-backup client/src/ts-pattern
 
   _generate-secret-key:
     desc: Generate SECRET_KEY in .env if it's still the placeholder
