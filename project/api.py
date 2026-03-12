@@ -4,6 +4,6 @@ from ninja_jwt.controller import NinjaJWTDefaultController
 from blog.api import router as blog_router
 
 api = NinjaExtraAPI()
-api.register_controllers(NinjaJWTDefaultController)
+api.register_controllers(NinjaJWTDefaultController)  # pyright: ignore[reportUnknownMemberType]
 
 api.add_router("/blog", blog_router)
