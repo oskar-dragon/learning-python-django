@@ -23,18 +23,31 @@ Additionally, the current discriminant fields are inconsistent: success schemas 
 - Frontend imports and uses them without manual assembly
 - All variants (success and error) use a consistent `tag` discriminant field
 
+## Constraints
+
+- Django model `status` field is not renamed — only the Pydantic schema layer changes
+- HTTP status codes are preserved (200/403/404) — no flattening to a single status code
+- hey-api configuration (`openapi-ts.config.ts`) is unchanged
+- `tag` (no underscore) is used as the discriminant field. The Effect.ts `_tag` convention uses underscore to signal internal/structural metadata — this is a JS ecosystem convention that does not apply in a REST API context, and `_tag` cannot be a Pydantic model field name directly (underscore-prefixed names are treated as private attributes in Pydantic v2)
+
 ## Design
 
 ### Core Infrastructure (`core/schemas.py`)
 
-Three reusable building blocks that every API in the project uses:
+Three reusable building blocks that every API in the project uses.
 
-**`TaggedSchema`** — base class for all discriminated union schemas. Declares `tag: str` as a required field. All schemas that participate in a discriminated union inherit from this.
+**`TaggedSchema`** — base class for all discriminated union schemas. Inherits from Django Ninja's `Schema` (which provides `from_attributes=True` and is itself a `BaseModel` subclass) so ORM objects can be serialized directly without extra config.
 
 ```python
-class TaggedSchema(BaseModel):
+from ninja import Schema
+from pydantic import ConfigDict
+
+class TaggedSchema(Schema):
+    model_config = ConfigDict(populate_by_name=True)
     tag: str
 ```
+
+`populate_by_name=True` ensures schemas can be constructed using either the field name (`tag=`) or the validation alias (`status=`). Without this, only the alias is accepted at construction time.
 
 **`AppError`** — updated to inherit from `TaggedSchema`. Renames the existing `type` field to `tag`. All error schemas inherit from this.
 
@@ -43,23 +56,32 @@ class AppError(TaggedSchema):
     detail: str
 ```
 
-**`tagged_union()`** — helper function that eliminates the `Annotated[Union[...], Field(discriminator="tag")]` boilerplate. Lives in `core` so every API can use it.
+**`tagged_union()`** — helper that eliminates the `Annotated[Union[...], Field(discriminator="tag")]` boilerplate. `Union[schemas]` with a tuple argument is not valid Python; the correct approach is `functools.reduce`:
 
 ```python
+import functools
+from typing import Union, Annotated
+from pydantic import Field
+
 def tagged_union(*schemas: type[TaggedSchema]):
-    return Annotated[Union[schemas], Field(discriminator="tag")]
+    union = functools.reduce(lambda a, b: Union[a, b], schemas)
+    return Annotated[union, Field(discriminator="tag")]
 ```
 
-### Products API (`products/schemas.py`)
+### Schemas File (`products/schemas.py`)
 
-All four product schemas inherit from `TaggedSchema` or `AppError`.
+Currently all product schemas live in `products/api.py`. As part of this change, they move to a new `products/schemas.py`. This is the right structure for scalability — all future resources follow the same `<app>/schemas.py` convention.
 
-**Success schemas** — the Django model keeps its `status` DB field untouched. The Pydantic schema maps it to `tag` via `validation_alias`:
+All four schemas are updated. **Note:** the current schemas use Django Ninja's `ModelSchema` (automatic field derivation from the Django model). We drop `ModelSchema` in favour of explicit `TaggedSchema`-based schemas. Tradeoff: fields must be declared explicitly, but we gain full control over discriminated union shape. If the `Product` model gains new fields, they will not automatically appear in the schema.
+
+**Success schemas** — `validation_alias="status"` maps the Django ORM object's `status` attribute to the `tag` field at validation time. `default` ensures the correct literal is set when constructing directly. Requires `from_attributes=True` which is provided by inheriting from `ninja.Schema` via `TaggedSchema`.
+
+Note: direct construction requires `status=` as the kwarg (not `tag=`), since `validation_alias` controls which input key is accepted. ORM serialization is unaffected.
 
 ```python
 class AvailableProductSchema(TaggedSchema):
     tag: Literal["available"] = Field(validation_alias="status", default="available")
-    id: int | None = None
+    id: int
     name: str
     description: str
     price: str
@@ -67,17 +89,19 @@ class AvailableProductSchema(TaggedSchema):
 
 class OutOfStockProductSchema(TaggedSchema):
     tag: Literal["out_of_stock"] = Field(validation_alias="status", default="out_of_stock")
-    id: int | None = None
+    id: int
     name: str
     description: str
     price: str
 ```
 
-**Named success union** — generated via the `tagged_union` helper:
+**Named success union:**
 
 ```python
 ProductResult = tagged_union(AvailableProductSchema, OutOfStockProductSchema)
 ```
+
+Whether `ProductResult` appears as a named component in the OpenAPI `components/schemas` section (vs. being inlined) depends on Django Ninja internals — **to be verified during implementation**. If it is inlined, hey-api will still generate a usable union type, but it may not be named `ProductResult`.
 
 **Error schemas** — rename `type` → `tag`, inherit from `AppError`:
 
@@ -93,21 +117,35 @@ class ProductHiddenError(AppError):
 
 ### Products Endpoint (`products/api.py`)
 
-The response type for the detail endpoint changes from `ProductSchema` to `ProductResult`. Handler logic is untouched.
+Two endpoints change:
+
+**Detail endpoint** — response type changes from the inline union to `ProductResult`:
 
 ```python
 @router.get("/{product_id}/", response={200: ProductResult, 404: ProductNotFoundError, 403: ProductHiddenError})
 ```
 
-### OpenAPI Schema
+**List endpoint** — response type changes from `list[ProductSchema]` to `list[ProductResult]`:
 
-Django Ninja + Pydantic v2 automatically generates a proper `oneOf` + `discriminator` block for `ProductResult` in the OpenAPI schema, with `tag` as the discriminator property. `ProductResult` appears as a named component in `components/schemas`.
+```python
+@router.get("/", response=list[ProductResult])
+```
+
+**Handler return dicts** — the error handler dicts must change `"type"` → `"tag"`:
+
+```python
+# Before:
+return 404, {"type": "product_not_found", "detail": ..., "id": product_id}
+
+# After:
+return 404, {"tag": "product_not_found", "detail": ..., "id": product_id}
+```
 
 ### Client Generation
 
 Running `task generate:client` regenerates the TypeScript client. hey-api generates:
 
-- `ProductResult` — named discriminated union type
+- `ProductResult` (or equivalent union) — named discriminated union type
 - `AvailableProductSchema`, `OutOfStockProductSchema` — now with `tag` instead of `status`
 - `ProductNotFoundError`, `ProductHiddenError` — now with `tag` instead of `type`
 
@@ -120,7 +158,7 @@ The manual type aliases are removed. Match patterns use `tag` consistently:
 type ProductSchema = AvailableProductSchema | OutOfStockProductSchema;
 type ProductApiError = ProductNotFoundError | ProductHiddenError;
 
-// After — nothing. Types come from generated client.
+// After — nothing. Types come from the generated client.
 import type { ProductResult, ProductNotFoundError, ProductHiddenError } from "../generated";
 ```
 
@@ -135,20 +173,38 @@ match(result)
   .exhaustive()
 ```
 
+### Blog App (`blog/api.py`) — partially in scope
+
+Renaming `AppError.type → tag` is a cross-cutting change. The minimum required updates to avoid breakage:
+
+- `PostNotFoundError` currently defines `type: Literal["post_not_found"]` — rename to `tag`
+- The handler return dict `{"type": "post_not_found", ...}` — change `"type"` → `"tag"`
+
+`DraftPostSchema` and `PublishedPostSchema` are **deferred**. Their `status` values are Django's abbreviated two-letter codes (`"DF"`, `"PB"`). Migrating them to `tag` requires remapping values (not just keys), which needs a `@field_validator` — not just `validation_alias`. This is a separate migration with its own scope. These schemas continue using `status` as their discriminant for now.
+
+`posts.ts` placeholder types (`AuthError`, `ValidationError`) use `type` as their discriminant. These are local TODO stubs, not generated types. They remain unchanged here and will be replaced by generated types in a future task when the blog API gets full error handling.
+
+`posts.ts` success match patterns (`{ status: "DF" }`, `{ status: "PB" }`) are also unchanged — they are tied to the deferred schema migration above.
+
+### Tests
+
+`products/tests.py` uses the old field names in three patterns — all must be updated:
+
+- Equality assertions: `data["status"] == "available"` → `data["tag"] == "available"`
+- Filter predicates (easy to miss): `next(p for p in results if p["status"] == "available")` → `p["tag"] == "available"`
+- Error field: `data["type"] == "product_not_found"` → `data["tag"] == "product_not_found"`
+
+Blog tests (if any) follow the same pattern for error fields.
+
 ## Scalability Pattern
 
 Every future API follows the same recipe:
 
-1. All schemas inherit from `TaggedSchema` (or `AppError` for errors)
-2. One named result union per resource: `PostResult = tagged_union(DraftPostSchema, PublishedPostSchema)`
-3. Errors inherit `AppError`, narrow `tag` to a `Literal`
-4. Endpoint response uses the named result type
+1. Schemas live in `<app>/schemas.py`, not in `api.py`
+2. All schemas inherit from `TaggedSchema` (or `AppError` for errors)
+3. One named result union per resource: `PostResult = tagged_union(DraftPostSchema, PublishedPostSchema)`
+4. Errors inherit `AppError`, narrow `tag` to a `Literal`
+5. Endpoint response uses the named result type
+6. Handler error dicts use `"tag"` as the key
 
 No developer needs to touch `Annotated`, `Union`, `Field(discriminator=...)`, or define manual union aliases.
-
-## Constraints
-
-- Django model `status` field is not renamed — only the Pydantic schema layer changes
-- HTTP status codes are preserved (200/403/404) — no flattening to a single status code
-- hey-api configuration (`openapi-ts.config.ts`) is unchanged
-- Pydantic v2 `_` prefix limitation: field is named `tag` in both Python and JSON (not `_tag`). The Effect.ts `_tag` convention uses underscore to signal internal/structural metadata — this is a JS ecosystem convention that does not apply meaningfully in a REST API context.
