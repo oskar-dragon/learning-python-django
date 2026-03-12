@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "ninja_jwt",
     "blog.apps.BlogConfig",
     "products.apps.ProductsConfig",
+    "orders.apps.OrdersConfig",
 ]
 
 MIDDLEWARE = [
