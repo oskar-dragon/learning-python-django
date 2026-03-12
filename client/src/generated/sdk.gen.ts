@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { BlogApiGetPostData, BlogApiGetPostErrors, BlogApiGetPostResponses, BlogApiGetPostsData, BlogApiGetPostsResponses, ProductsApiGetProductData, ProductsApiGetProductErrors, ProductsApiGetProductResponses, ProductsApiListProductsData, ProductsApiListProductsResponses, TokenObtainPairData, TokenObtainPairResponses, TokenRefreshData, TokenRefreshResponses, TokenVerifyData, TokenVerifyResponses } from './types.gen';
+import type { BlogApiGetPostData, BlogApiGetPostErrors, BlogApiGetPostResponses, BlogApiGetPostsData, BlogApiGetPostsResponses, OrdersApiGetOrderData, OrdersApiGetOrderErrors, OrdersApiGetOrderResponses, OrdersApiListOrdersData, OrdersApiListOrdersResponses, ProductsApiGetProductData, ProductsApiGetProductErrors, ProductsApiGetProductResponses, ProductsApiListProductsData, ProductsApiListProductsResponses, TokenObtainPairData, TokenObtainPairResponses, TokenRefreshData, TokenRefreshResponses, TokenVerifyData, TokenVerifyResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -63,6 +63,24 @@ export const blogApiGetPosts = <ThrowOnError extends boolean = false>(options?: 
  * Get Post
  */
 export const blogApiGetPost = <ThrowOnError extends boolean = false>(options: Options<BlogApiGetPostData, ThrowOnError>) => (options.client ?? client).get<BlogApiGetPostResponses, BlogApiGetPostErrors, ThrowOnError>({ url: '/api/blog/post/{post_id}', ...options });
+
+/**
+ * List Orders
+ */
+export const ordersApiListOrders = <ThrowOnError extends boolean = false>(options?: Options<OrdersApiListOrdersData, ThrowOnError>) => (options?.client ?? client).get<OrdersApiListOrdersResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/orders/',
+    ...options
+});
+
+/**
+ * Get Order
+ */
+export const ordersApiGetOrder = <ThrowOnError extends boolean = false>(options: Options<OrdersApiGetOrderData, ThrowOnError>) => (options.client ?? client).get<OrdersApiGetOrderResponses, OrdersApiGetOrderErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/orders/{order_id}/',
+    ...options
+});
 
 /**
  * List Products

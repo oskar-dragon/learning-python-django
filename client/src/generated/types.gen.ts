@@ -152,6 +152,177 @@ export type PostNotFoundError = {
 };
 
 /**
+ * OrderFilters
+ */
+export type OrderFilters = {
+    status?: Status | null;
+    /**
+     * Q
+     */
+    q?: string | null;
+    /**
+     * Min Total
+     */
+    min_total?: number | string | null;
+    /**
+     * Max Total
+     */
+    max_total?: number | string | null;
+};
+
+/**
+ * Status
+ */
+export type Status = 'draft' | 'pending' | 'shipped' | 'cancelled';
+
+/**
+ * CancelledOrderSchema
+ */
+export type CancelledOrderSchema = {
+    /**
+     * Tag
+     */
+    tag?: 'cancelled';
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Customer Name
+     */
+    customer_name: string;
+    /**
+     * Items Count
+     */
+    items_count: number;
+    /**
+     * Total Price
+     */
+    total_price: string;
+    /**
+     * Cancellation Reason
+     */
+    cancellation_reason: string;
+    /**
+     * Cancelled At
+     */
+    cancelled_at: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
+ * OrderResult
+ */
+export type OrderResult = PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema;
+
+/**
+ * PendingOrderSchema
+ */
+export type PendingOrderSchema = {
+    /**
+     * Tag
+     */
+    tag?: 'pending';
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Customer Name
+     */
+    customer_name: string;
+    /**
+     * Items Count
+     */
+    items_count: number;
+    /**
+     * Total Price
+     */
+    total_price: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
+ * ShippedOrderSchema
+ */
+export type ShippedOrderSchema = {
+    /**
+     * Tag
+     */
+    tag?: 'shipped';
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Customer Name
+     */
+    customer_name: string;
+    /**
+     * Items Count
+     */
+    items_count: number;
+    /**
+     * Total Price
+     */
+    total_price: string;
+    /**
+     * Tracking Number
+     */
+    tracking_number: string;
+    /**
+     * Shipped At
+     */
+    shipped_at: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
+ * OrderNotFoundError
+ */
+export type OrderNotFoundError = {
+    /**
+     * Tag
+     */
+    tag?: 'order_not_found';
+    /**
+     * Detail
+     */
+    detail: string;
+    /**
+     * Id
+     */
+    id: number;
+};
+
+/**
+ * OrderNotAccessibleError
+ */
+export type OrderNotAccessibleError = {
+    /**
+     * Tag
+     */
+    tag?: 'order_not_accessible';
+    /**
+     * Detail
+     */
+    detail: string;
+    /**
+     * Id
+     */
+    id: number;
+};
+
+/**
  * AvailableProductSchema
  *
  * Available product — has stock_count. tag maps from ORM's status field.
@@ -382,6 +553,72 @@ export type BlogApiGetPostResponses = {
 };
 
 export type BlogApiGetPostResponse = BlogApiGetPostResponses[keyof BlogApiGetPostResponses];
+
+export type OrdersApiListOrdersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: Status | null;
+        /**
+         * Q
+         */
+        q?: string | null;
+        /**
+         * Min Total
+         */
+        min_total?: number | string | null;
+        /**
+         * Max Total
+         */
+        max_total?: number | string | null;
+    };
+    url: '/api/orders/';
+};
+
+export type OrdersApiListOrdersResponses = {
+    /**
+     * Response
+     *
+     * OK
+     */
+    200: Array<OrderResult>;
+};
+
+export type OrdersApiListOrdersResponse = OrdersApiListOrdersResponses[keyof OrdersApiListOrdersResponses];
+
+export type OrdersApiGetOrderData = {
+    body?: never;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: number;
+    };
+    query?: never;
+    url: '/api/orders/{order_id}/';
+};
+
+export type OrdersApiGetOrderErrors = {
+    /**
+     * Forbidden
+     */
+    403: OrderNotAccessibleError;
+    /**
+     * Not Found
+     */
+    404: OrderNotFoundError;
+};
+
+export type OrdersApiGetOrderError = OrdersApiGetOrderErrors[keyof OrdersApiGetOrderErrors];
+
+export type OrdersApiGetOrderResponses = {
+    /**
+     * OK
+     */
+    200: OrderResult;
+};
+
+export type OrdersApiGetOrderResponse = OrdersApiGetOrderResponses[keyof OrdersApiGetOrderResponses];
 
 export type ProductsApiListProductsData = {
     body?: never;
