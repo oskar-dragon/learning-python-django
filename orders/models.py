@@ -18,9 +18,9 @@ class Order(models.Model):
         choices=Status.choices,
         default=Status.PENDING,
     )
-    tracking_number = models.CharField(max_length=100, blank=True, default="")
+    tracking_number = models.CharField(max_length=100, null=True, blank=True)  # noqa: DJ001
     shipped_at = models.DateTimeField(null=True, blank=True)
-    cancellation_reason = models.CharField(max_length=255, blank=True, default="")
+    cancellation_reason = models.CharField(max_length=255, null=True, blank=True)  # noqa: DJ001
     cancelled_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
