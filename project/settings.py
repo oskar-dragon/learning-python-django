@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ninja",
+    "ninja_extra",
+    "ninja_jwt",
     "blog.apps.BlogConfig",
 ]
 

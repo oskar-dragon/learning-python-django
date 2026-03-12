@@ -40,3 +40,4 @@ reportUnannotatedClassAttribute = false
 reportAny = false
 reportMissingTypeArgument = false
 reportIncompatibleVariableOverride = false
+reportUnknownMemberType = false
