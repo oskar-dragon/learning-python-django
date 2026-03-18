@@ -95,15 +95,18 @@ Changes from current:
 
 ### Blog model change (`blog/models.py`)
 
-Change `Status` choices from abbreviated codes to semantic values:
+Change `Status` choices from abbreviated codes to semantic values, and increase `max_length` to accommodate the longer values:
 
 ```python
 class Status(models.TextChoices):
     DRAFT = "draft", "Draft"          # was "DF", "Draft"
     PUBLISHED = "published", "Published"  # was "PB", "Published"
+
+status = models.CharField(max_length=20, choices=Status, default=Status.DRAFT)
+# max_length was 2 — must increase to fit "published" (9 chars); 20 matches products
 ```
 
-This requires a Django migration. The `tag_field="status"` aliasing then works directly — the ORM's `status` value (`"draft"` / `"published"`) matches the `tag` Literal.
+This requires a Django migration (field length change + data migration for existing rows: `"DF"` → `"draft"`, `"PB"` → `"published"`). The `tag_field="status"` aliasing then works directly — the ORM's `status` value (`"draft"` / `"published"`) matches the `tag` Literal.
 
 ### Blog schemas (new `blog/schemas.py`)
 
