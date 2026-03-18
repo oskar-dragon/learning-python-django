@@ -13,5 +13,8 @@ __pycache__/
 staticfiles/
 media/
 
+# Claude Code
+.claude/
+
 # Hey API client generator artifacts
 client/node_modules/
