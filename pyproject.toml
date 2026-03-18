@@ -38,5 +38,6 @@ reportUnusedParameter = false
 reportImplicitStringConcatenation = false
 reportUnannotatedClassAttribute = false
 reportAny = false
+reportExplicitAny = false
 reportMissingTypeArgument = false
 reportIncompatibleVariableOverride = false
