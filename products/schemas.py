@@ -36,10 +36,10 @@ class ProductResult(RootModel[AvailableProductSchema | OutOfStockProductSchema])
 
 
 class ProductNotFoundError(AppError):
-    tag: Literal["product_not_found"]
+    tag: Literal["product_not_found"] = "product_not_found"
     id: int
 
 
 class ProductHiddenError(AppError):
-    tag: Literal["product_hidden"]
+    tag: Literal["product_hidden"] = "product_hidden"
     id: int

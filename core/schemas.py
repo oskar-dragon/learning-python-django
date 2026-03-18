@@ -8,7 +8,7 @@ class TaggedSchema(Schema):
     """Base for all discriminated union schemas. Subclasses auto-derive tag from class name."""
 
     model_config = ConfigDict(populate_by_name=True)
-    tag: str
+    tag: str = ""
 
     def __init_subclass__(cls, tag: str | None = None, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)

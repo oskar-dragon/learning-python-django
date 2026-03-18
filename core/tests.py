@@ -14,7 +14,7 @@ class TaggedSchemaAutoTagTest(TestCase):
         class MySchema(TaggedSchema):
             value: int
 
-        instance = MySchema(value=1)  # pyright: ignore[reportCallIssue]
+        instance = MySchema(value=1)
         self.assertEqual(instance.tag, "MySchema")
 
     def test_tag_has_literal_type(self) -> None:
@@ -28,7 +28,7 @@ class TaggedSchemaAutoTagTest(TestCase):
         class CustomSchema(TaggedSchema, tag="custom"):
             value: int
 
-        instance = CustomSchema(value=1)  # pyright: ignore[reportCallIssue]
+        instance = CustomSchema(value=1)
         self.assertEqual(instance.tag, "custom")
 
     def test_explicit_tag_override_has_literal_type(self) -> None:
@@ -42,7 +42,7 @@ class TaggedSchemaAutoTagTest(TestCase):
         class MySchema(TaggedSchema):
             value: int
 
-        data = MySchema(value=1).model_dump()  # pyright: ignore[reportCallIssue]
+        data = MySchema(value=1).model_dump()
         self.assertEqual(data["tag"], "MySchema")
 
     def test_tag_in_json_schema(self) -> None:
@@ -70,14 +70,14 @@ class TaggedSchemaAutoTagTest(TestCase):
 
     def test_intermediate_class_gets_own_tag(self) -> None:
         """AppError is an intermediate class — it should get tag='AppError'."""
-        error = AppError(detail="test")  # pyright: ignore[reportCallIssue]
+        error = AppError(detail="test")
         self.assertEqual(error.tag, "AppError")
 
     def test_intermediate_class_does_not_break_subclass_tags(self) -> None:
         class ConcreteError(AppError):
             code: int
 
-        error = ConcreteError(detail="test", code=42)  # pyright: ignore[reportCallIssue]
+        error = ConcreteError(detail="test", code=42)
         self.assertEqual(error.tag, "ConcreteError")
         self.assertNotEqual(error.tag, "AppError")
 
@@ -87,7 +87,7 @@ class AppExceptionTest(TestCase):
         class TestError(AppError):
             pass
 
-        error = TestError(detail="something went wrong")  # pyright: ignore[reportCallIssue]
+        error = TestError(detail="something went wrong")
         exc = AppException(404, error)
         self.assertEqual(exc.status_code, 404)
         self.assertIs(exc.error, error)
@@ -97,6 +97,6 @@ class AppExceptionTest(TestCase):
         class TestError(AppError):
             pass
 
-        error = TestError(detail="something went wrong")  # pyright: ignore[reportCallIssue]
+        error = TestError(detail="something went wrong")
         exc = AppException(500, error)
         self.assertIsInstance(exc, Exception)
