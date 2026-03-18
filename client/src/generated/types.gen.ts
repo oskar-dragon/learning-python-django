@@ -78,13 +78,13 @@ export type TokenVerifyInputSchema = {
 };
 
 /**
- * DraftPostSchema
+ * DraftPost
  */
-export type DraftPostSchema = {
+export type DraftPost = {
     /**
-     * Status
+     * Tag
      */
-    status: 'DF';
+    tag: 'draft';
     /**
      * ID
      */
@@ -104,13 +104,18 @@ export type DraftPostSchema = {
 };
 
 /**
- * PublishedPostSchema
+ * PostResponse
  */
-export type PublishedPostSchema = {
+export type PostResponse = DraftPost | PublishedPost;
+
+/**
+ * PublishedPost
+ */
+export type PublishedPost = {
     /**
-     * Status
+     * Tag
      */
-    status: 'PB';
+    tag: 'published';
     /**
      * ID
      */
@@ -323,11 +328,9 @@ export type OrderNotAccessibleError = {
 };
 
 /**
- * AvailableProductSchema
- *
- * Available product — has stock_count. tag maps from ORM's status field.
+ * AvailableProduct
  */
-export type AvailableProductSchema = {
+export type AvailableProduct = {
     /**
      * Tag
      */
@@ -355,11 +358,9 @@ export type AvailableProductSchema = {
 };
 
 /**
- * OutOfStockProductSchema
- *
- * Out-of-stock product — no stock_count. tag maps from ORM's status field.
+ * OutOfStockProduct
  */
-export type OutOfStockProductSchema = {
+export type OutOfStockProduct = {
     /**
      * Tag
      */
@@ -384,10 +385,8 @@ export type OutOfStockProductSchema = {
 
 /**
  * ProductResponse
- *
- * Named discriminated union for product success responses.
  */
-export type ProductResponse = AvailableProductSchema | OutOfStockProductSchema;
+export type ProductResponse = AvailableProduct | OutOfStockProduct;
 
 /**
  * ProductNotFoundError
@@ -509,11 +508,7 @@ export type BlogApiGetPostsResponses = {
      *
      * OK
      */
-    200: Array<({
-        status: 'DF';
-    } & DraftPostSchema) | ({
-        status: 'PB';
-    } & PublishedPostSchema)>;
+    200: Array<PostResponse>;
 };
 
 export type BlogApiGetPostsResponse = BlogApiGetPostsResponses[keyof BlogApiGetPostsResponses];
@@ -541,15 +536,9 @@ export type BlogApiGetPostError = BlogApiGetPostErrors[keyof BlogApiGetPostError
 
 export type BlogApiGetPostResponses = {
     /**
-     * Response
-     *
      * OK
      */
-    200: ({
-        status: 'DF';
-    } & DraftPostSchema) | ({
-        status: 'PB';
-    } & PublishedPostSchema);
+    200: PostResponse;
 };
 
 export type BlogApiGetPostResponse = BlogApiGetPostResponses[keyof BlogApiGetPostResponses];
