@@ -1,6 +1,5 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Literal
 
 from ninja.filter_schema import FilterSchema
 from pydantic import Field, RootModel
@@ -9,8 +8,7 @@ from core.schemas import AppError, TaggedSchema
 from orders.models import Order
 
 
-class PendingOrderSchema(TaggedSchema):
-    tag: Literal["pending"]
+class PendingOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -18,8 +16,7 @@ class PendingOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class ShippedOrderSchema(TaggedSchema):
-    tag: Literal["shipped"]
+class ShippedOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -29,8 +26,7 @@ class ShippedOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class CancelledOrderSchema(TaggedSchema):
-    tag: Literal["cancelled"]
+class CancelledOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -40,17 +36,15 @@ class CancelledOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class OrderResult(RootModel[PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema]):
+class OrderResponse(RootModel[PendingOrder | ShippedOrder | CancelledOrder]):
     pass
 
 
 class OrderNotFoundError(AppError):
-    tag: Literal["order_not_found"]
     id: int
 
 
 class OrderNotAccessibleError(AppError):
-    tag: Literal["order_not_accessible"]
     id: int
 
 

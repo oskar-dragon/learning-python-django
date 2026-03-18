@@ -4,16 +4,12 @@ from orders.schemas import OrderNotAccessibleError, OrderNotFoundError
 
 class OrderNotFound(AppException):
     def __init__(self, order_id: int) -> None:
-        super().__init__(
-            404, OrderNotFoundError(tag="order_not_found", id=order_id, detail="Order not found")
-        )
+        super().__init__(404, OrderNotFoundError(id=order_id, detail="Order not found"))
 
 
 class OrderNotAccessible(AppException):
     def __init__(self, order_id: int) -> None:
         super().__init__(
             403,
-            OrderNotAccessibleError(
-                tag="order_not_accessible", id=order_id, detail="Order not accessible"
-            ),
+            OrderNotAccessibleError(id=order_id, detail="Order not accessible"),
         )

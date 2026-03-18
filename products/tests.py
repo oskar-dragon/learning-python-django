@@ -154,12 +154,12 @@ class ProductsDetailAPITest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         data = response.json()
-        self.assertEqual(data["tag"], "product_hidden")
+        self.assertEqual(data["tag"], "ProductHiddenError")
         self.assertEqual(data["id"], self.hidden.pk)
 
     def test_get_nonexistent_product_returns_404(self) -> None:
         response = self.client.get("/api/products/99999/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 404)
         data = response.json()
-        self.assertEqual(data["tag"], "product_not_found")
+        self.assertEqual(data["tag"], "ProductNotFoundError")
         self.assertEqual(data["id"], 99999)

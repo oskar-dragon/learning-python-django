@@ -1,6 +1,6 @@
 import { match } from "ts-pattern";
 import type {
-  ProductResult,
+  ProductResponse,
   ProductsApiGetProductError,
 } from "../generated/types.gen";
 
@@ -8,7 +8,7 @@ import type {
 // stock_count is only accessible when tag is "available" — TypeScript
 // narrows the type per branch, so accessing it on the "out_of_stock" branch
 // would be a compile error.
-function describeProduct(product: ProductResult): string {
+function describeProduct(product: ProductResponse): string {
   return match(product)
     .with(
       { tag: "available" },
@@ -26,11 +26,11 @@ function describeProduct(product: ProductResult): string {
 function describeError(error: ProductsApiGetProductError): string {
   return match(error)
     .with(
-      { tag: "product_not_found" },
+      { tag: "ProductNotFoundError" },
       (e) => `Product ${e.id} not found: ${e.detail}`,
     )
     .with(
-      { tag: "product_hidden" },
+      { tag: "ProductHiddenError" },
       (e) => `Product ${e.id} is restricted: ${e.detail}`,
     )
     .exhaustive();
@@ -38,8 +38,8 @@ function describeError(error: ProductsApiGetProductError): string {
 
 // Example 3: combined success + error match in one exhaustive chain.
 // Demonstrates the realistic usage pattern after calling productsApiGetProduct().
-function handleProductResult(
-  result: ProductResult | ProductsApiGetProductError,
+function handleProductResponse(
+  result: ProductResponse | ProductsApiGetProductError,
 ): string {
   return match(result)
     .with(
@@ -47,8 +47,8 @@ function handleProductResult(
       (p) => `Available: ${p.name} (${p.stock_count} left)`,
     )
     .with({ tag: "out_of_stock" }, (p) => `Sold out: ${p.name}`)
-    .with({ tag: "product_not_found" }, (e) => `Not found: product ${e.id}`)
-    .with({ tag: "product_hidden" }, (e) => `Restricted: product ${e.id}`)
+    .with({ tag: "ProductNotFoundError" }, (e) => `Not found: product ${e.id}`)
+    .with({ tag: "ProductHiddenError" }, (e) => `Restricted: product ${e.id}`)
     .exhaustive();
 }
 

@@ -91,20 +91,20 @@ class OrdersListAPITest(TestCase):
     def test_list_pending_order_has_correct_tag(self) -> None:
         response = self.client.get("/api/orders/", HTTP_AUTHORIZATION=self.token)
         pending = next(o for o in response.json() if o["customer_name"] == "Alice")
-        self.assertEqual(pending["tag"], "pending")
+        self.assertEqual(pending["tag"], "PendingOrder")
         self.assertNotIn("tracking_number", pending)
         self.assertNotIn("cancellation_reason", pending)
 
     def test_list_shipped_order_has_tracking_number(self) -> None:
         response = self.client.get("/api/orders/", HTTP_AUTHORIZATION=self.token)
         shipped = next(o for o in response.json() if o["customer_name"] == "Bob")
-        self.assertEqual(shipped["tag"], "shipped")
+        self.assertEqual(shipped["tag"], "ShippedOrder")
         self.assertEqual(shipped["tracking_number"], "TRACK123")
 
     def test_list_cancelled_order_has_cancellation_reason(self) -> None:
         response = self.client.get("/api/orders/", HTTP_AUTHORIZATION=self.token)
         cancelled = next(o for o in response.json() if o["customer_name"] == "Charlie")
-        self.assertEqual(cancelled["tag"], "cancelled")
+        self.assertEqual(cancelled["tag"], "CancelledOrder")
         self.assertEqual(cancelled["cancellation_reason"], "Changed mind")
 
     def test_filter_by_status(self) -> None:
@@ -176,7 +176,7 @@ class OrdersDetailAPITest(TestCase):
         response = self.client.get(f"/api/orders/{self.pending.pk}/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["tag"], "pending")
+        self.assertEqual(data["tag"], "PendingOrder")
         self.assertEqual(data["customer_name"], "Alice")
         self.assertNotIn("tracking_number", data)
         self.assertNotIn("cancellation_reason", data)
@@ -185,7 +185,7 @@ class OrdersDetailAPITest(TestCase):
         response = self.client.get(f"/api/orders/{self.shipped.pk}/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["tag"], "shipped")
+        self.assertEqual(data["tag"], "ShippedOrder")
         self.assertEqual(data["tracking_number"], "TRACK123")
         self.assertIn("shipped_at", data)
 
@@ -195,7 +195,7 @@ class OrdersDetailAPITest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["tag"], "cancelled")
+        self.assertEqual(data["tag"], "CancelledOrder")
         self.assertEqual(data["cancellation_reason"], "Changed mind")
         self.assertIn("cancelled_at", data)
 
@@ -203,12 +203,12 @@ class OrdersDetailAPITest(TestCase):
         response = self.client.get("/api/orders/99999/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 404)
         data = response.json()
-        self.assertEqual(data["tag"], "order_not_found")
+        self.assertEqual(data["tag"], "OrderNotFoundError")
         self.assertEqual(data["id"], 99999)
 
     def test_get_draft_order_returns_403(self) -> None:
         response = self.client.get(f"/api/orders/{self.draft.pk}/", HTTP_AUTHORIZATION=self.token)
         self.assertEqual(response.status_code, 403)
         data = response.json()
-        self.assertEqual(data["tag"], "order_not_accessible")
+        self.assertEqual(data["tag"], "OrderNotAccessibleError")
         self.assertEqual(data["id"], self.draft.pk)

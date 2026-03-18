@@ -11,7 +11,6 @@ router = Router()
 
 
 class PostNotFoundError(AppError):
-    tag: Literal["post_not_found"]
     id: int
 
 
@@ -45,7 +44,7 @@ def get_post(request: HttpRequest, post_id: int):
         return 200, Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return 404, {
-            "tag": "post_not_found",
+            "tag": "PostNotFoundError",
             "detail": f"Post with id {post_id} not found",
             "id": post_id,
         }
