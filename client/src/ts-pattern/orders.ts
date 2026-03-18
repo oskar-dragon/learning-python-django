@@ -1,27 +1,27 @@
 import { match } from "ts-pattern";
 import type {
-  CancelledOrderSchema,
+  CancelledOrder,
   OrderNotAccessibleError,
   OrderNotFoundError,
-  OrderResult,
-  PendingOrderSchema,
-  ShippedOrderSchema,
+  OrderResponse,
+  PendingOrder,
+  ShippedOrder,
 } from "../generated/types.gen";
 
-function describeOrder(order: OrderResult): string {
+function describeOrder(order: OrderResponse): string {
   return match(order)
     .with(
-      { tag: "PendingOrderSchema" },
-      (o: PendingOrderSchema) => `Order for ${o.customer_name} is pending`,
+      { tag: "PendingOrder" },
+      (o: PendingOrder) => `Order for ${o.customer_name} is pending`,
     )
     .with(
-      { tag: "ShippedOrderSchema" },
-      (o: ShippedOrderSchema) =>
+      { tag: "ShippedOrder" },
+      (o: ShippedOrder) =>
         `Order for ${o.customer_name} shipped — tracking: ${o.tracking_number}`,
     )
     .with(
-      { tag: "CancelledOrderSchema" },
-      (o: CancelledOrderSchema) =>
+      { tag: "CancelledOrder" },
+      (o: CancelledOrder) =>
         `Order for ${o.customer_name} cancelled — reason: ${o.cancellation_reason}`,
     )
     .exhaustive();

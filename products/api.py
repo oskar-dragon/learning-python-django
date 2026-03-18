@@ -3,19 +3,19 @@ from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 
 from products.models import Product
-from products.schemas import ProductHiddenError, ProductNotFoundError, ProductResult
+from products.schemas import ProductHiddenError, ProductNotFoundError, ProductResponse
 
 router = Router(auth=JWTAuth())
 
 
-@router.get("/", response=list[ProductResult])
+@router.get("/", response=list[ProductResponse])
 def list_products(request: HttpRequest) -> list[Product]:
     return list(Product.objects.exclude(status=Product.Status.HIDDEN))
 
 
 @router.get(
     "/{product_id}/",
-    response={200: ProductResult, 404: ProductNotFoundError, 403: ProductHiddenError},
+    response={200: ProductResponse, 404: ProductNotFoundError, 403: ProductHiddenError},
 )
 def get_product(request: HttpRequest, product_id: int) -> tuple[int, Product | dict[str, object]]:
     try:

@@ -29,7 +29,7 @@ class OutOfStockProductSchema(ModelSchema):
         exclude = ["status", "stock_count", "created", "updated"]
 
 
-class ProductResult(RootModel[AvailableProductSchema | OutOfStockProductSchema]):
+class ProductResponse(RootModel[AvailableProductSchema | OutOfStockProductSchema]):
     """Named discriminated union for product success responses."""
 
     pass

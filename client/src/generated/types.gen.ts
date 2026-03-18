@@ -176,13 +176,13 @@ export type OrderFilters = {
 export type Status = 'draft' | 'pending' | 'shipped' | 'cancelled';
 
 /**
- * CancelledOrderSchema
+ * CancelledOrder
  */
-export type CancelledOrderSchema = {
+export type CancelledOrder = {
     /**
      * Tag
      */
-    tag: 'CancelledOrderSchema';
+    tag: 'CancelledOrder';
     /**
      * Id
      */
@@ -214,18 +214,18 @@ export type CancelledOrderSchema = {
 };
 
 /**
- * OrderResult
+ * OrderResponse
  */
-export type OrderResult = PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema;
+export type OrderResponse = PendingOrder | ShippedOrder | CancelledOrder;
 
 /**
- * PendingOrderSchema
+ * PendingOrder
  */
-export type PendingOrderSchema = {
+export type PendingOrder = {
     /**
      * Tag
      */
-    tag: 'PendingOrderSchema';
+    tag: 'PendingOrder';
     /**
      * Id
      */
@@ -249,13 +249,13 @@ export type PendingOrderSchema = {
 };
 
 /**
- * ShippedOrderSchema
+ * ShippedOrder
  */
-export type ShippedOrderSchema = {
+export type ShippedOrder = {
     /**
      * Tag
      */
-    tag: 'ShippedOrderSchema';
+    tag: 'ShippedOrder';
     /**
      * Id
      */
@@ -383,11 +383,11 @@ export type OutOfStockProductSchema = {
 };
 
 /**
- * ProductResult
+ * ProductResponse
  *
  * Named discriminated union for product success responses.
  */
-export type ProductResult = AvailableProductSchema | OutOfStockProductSchema;
+export type ProductResponse = AvailableProductSchema | OutOfStockProductSchema;
 
 /**
  * ProductNotFoundError
@@ -581,7 +581,7 @@ export type OrdersApiListOrdersResponses = {
      *
      * OK
      */
-    200: Array<OrderResult>;
+    200: Array<OrderResponse>;
 };
 
 export type OrdersApiListOrdersResponse = OrdersApiListOrdersResponses[keyof OrdersApiListOrdersResponses];
@@ -615,7 +615,7 @@ export type OrdersApiGetOrderResponses = {
     /**
      * OK
      */
-    200: OrderResult;
+    200: OrderResponse;
 };
 
 export type OrdersApiGetOrderResponse = OrdersApiGetOrderResponses[keyof OrdersApiGetOrderResponses];
@@ -633,7 +633,7 @@ export type ProductsApiListProductsResponses = {
      *
      * OK
      */
-    200: Array<ProductResult>;
+    200: Array<ProductResponse>;
 };
 
 export type ProductsApiListProductsResponse = ProductsApiListProductsResponses[keyof ProductsApiListProductsResponses];
@@ -667,7 +667,7 @@ export type ProductsApiGetProductResponses = {
     /**
      * OK
      */
-    200: ProductResult;
+    200: ProductResponse;
 };
 
 export type ProductsApiGetProductResponse = ProductsApiGetProductResponses[keyof ProductsApiGetProductResponses];

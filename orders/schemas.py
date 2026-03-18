@@ -8,7 +8,7 @@ from core.schemas import AppError, TaggedSchema
 from orders.models import Order
 
 
-class PendingOrderSchema(TaggedSchema):
+class PendingOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -16,7 +16,7 @@ class PendingOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class ShippedOrderSchema(TaggedSchema):
+class ShippedOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -26,7 +26,7 @@ class ShippedOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class CancelledOrderSchema(TaggedSchema):
+class CancelledOrder(TaggedSchema):
     id: int
     customer_name: str
     items_count: int
@@ -36,7 +36,7 @@ class CancelledOrderSchema(TaggedSchema):
     created_at: datetime
 
 
-class OrderResult(RootModel[PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema]):
+class OrderResponse(RootModel[PendingOrder | ShippedOrder | CancelledOrder]):
     pass
 
 
