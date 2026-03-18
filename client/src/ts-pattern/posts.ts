@@ -44,7 +44,7 @@ function describePost(post: PostSchema): string {
 function describeError(error: ApiError): string {
   return match(error)
     .with(
-      { tag: "post_not_found" },
+      { tag: "PostNotFoundError" },
       (e) => `Post ${e.id} not found: ${e.detail}`,
     )
     .with({ type: "auth_error" }, (e) => `Auth error: ${e.message}`)
@@ -64,7 +64,7 @@ function handlePostResult(result: PostSchema | ApiError): string {
     .with({ status: "DF" }, (p) => `Draft: ${p.title}`)
     .with({ status: "PB" }, (p) => `Published: ${p.title}`)
     .with(
-      { tag: "post_not_found" },
+      { tag: "PostNotFoundError" },
       (e) => `Not found: post ${e.id} — ${e.detail}`,
     )
     .with({ type: "auth_error" }, (e) => `Unauthorized: ${e.message}`)

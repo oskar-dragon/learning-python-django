@@ -140,7 +140,7 @@ export type PostNotFoundError = {
     /**
      * Tag
      */
-    tag: 'post_not_found';
+    tag: 'PostNotFoundError';
     /**
      * Detail
      */
@@ -182,7 +182,7 @@ export type CancelledOrderSchema = {
     /**
      * Tag
      */
-    tag: 'cancelled';
+    tag: 'CancelledOrderSchema';
     /**
      * Id
      */
@@ -225,7 +225,7 @@ export type PendingOrderSchema = {
     /**
      * Tag
      */
-    tag: 'pending';
+    tag: 'PendingOrderSchema';
     /**
      * Id
      */
@@ -255,7 +255,7 @@ export type ShippedOrderSchema = {
     /**
      * Tag
      */
-    tag: 'shipped';
+    tag: 'ShippedOrderSchema';
     /**
      * Id
      */
@@ -293,7 +293,7 @@ export type OrderNotFoundError = {
     /**
      * Tag
      */
-    tag: 'order_not_found';
+    tag: 'OrderNotFoundError';
     /**
      * Detail
      */
@@ -311,7 +311,7 @@ export type OrderNotAccessibleError = {
     /**
      * Tag
      */
-    tag: 'order_not_accessible';
+    tag: 'OrderNotAccessibleError';
     /**
      * Detail
      */
@@ -396,7 +396,7 @@ export type ProductNotFoundError = {
     /**
      * Tag
      */
-    tag: 'product_not_found';
+    tag: 'ProductNotFoundError';
     /**
      * Detail
      */
@@ -414,7 +414,7 @@ export type ProductHiddenError = {
     /**
      * Tag
      */
-    tag: 'product_hidden';
+    tag: 'ProductHiddenError';
     /**
      * Detail
      */

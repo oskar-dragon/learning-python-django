@@ -26,11 +26,11 @@ function describeProduct(product: ProductResult): string {
 function describeError(error: ProductsApiGetProductError): string {
   return match(error)
     .with(
-      { tag: "product_not_found" },
+      { tag: "ProductNotFoundError" },
       (e) => `Product ${e.id} not found: ${e.detail}`,
     )
     .with(
-      { tag: "product_hidden" },
+      { tag: "ProductHiddenError" },
       (e) => `Product ${e.id} is restricted: ${e.detail}`,
     )
     .exhaustive();
@@ -47,8 +47,8 @@ function handleProductResult(
       (p) => `Available: ${p.name} (${p.stock_count} left)`,
     )
     .with({ tag: "out_of_stock" }, (p) => `Sold out: ${p.name}`)
-    .with({ tag: "product_not_found" }, (e) => `Not found: product ${e.id}`)
-    .with({ tag: "product_hidden" }, (e) => `Restricted: product ${e.id}`)
+    .with({ tag: "ProductNotFoundError" }, (e) => `Not found: product ${e.id}`)
+    .with({ tag: "ProductHiddenError" }, (e) => `Restricted: product ${e.id}`)
     .exhaustive();
 }
 

@@ -11,16 +11,16 @@ import type {
 function describeOrder(order: OrderResult): string {
   return match(order)
     .with(
-      { tag: "pending" },
+      { tag: "PendingOrderSchema" },
       (o: PendingOrderSchema) => `Order for ${o.customer_name} is pending`,
     )
     .with(
-      { tag: "shipped" },
+      { tag: "ShippedOrderSchema" },
       (o: ShippedOrderSchema) =>
         `Order for ${o.customer_name} shipped — tracking: ${o.tracking_number}`,
     )
     .with(
-      { tag: "cancelled" },
+      { tag: "CancelledOrderSchema" },
       (o: CancelledOrderSchema) =>
         `Order for ${o.customer_name} cancelled — reason: ${o.cancellation_reason}`,
     )
@@ -32,11 +32,11 @@ function describeError(
 ): string {
   return match(error)
     .with(
-      { tag: "order_not_found" },
+      { tag: "OrderNotFoundError" },
       (e: OrderNotFoundError) => `Order ${e.id} not found`,
     )
     .with(
-      { tag: "order_not_accessible" },
+      { tag: "OrderNotAccessibleError" },
       (e: OrderNotAccessibleError) => `Order ${e.id} is not accessible`,
     )
     .exhaustive();
