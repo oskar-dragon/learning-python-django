@@ -22,7 +22,7 @@ def get_product(request: HttpRequest, product_id: int) -> tuple[int, Product | d
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
         return 404, {
-            "tag": "product_not_found",
+            "tag": "ProductNotFoundError",
             "detail": f"Product {product_id} not found",
             "id": product_id,
         }
@@ -34,13 +34,13 @@ def get_product(request: HttpRequest, product_id: int) -> tuple[int, Product | d
             return 200, product
         case "hidden":
             return 403, {
-                "tag": "product_hidden",
+                "tag": "ProductHiddenError",
                 "detail": f"Product {product_id} is not available",
                 "id": product_id,
             }
         case _:
             return 404, {
-                "tag": "product_not_found",
+                "tag": "ProductNotFoundError",
                 "detail": f"Product {product_id} not found",
                 "id": product_id,
             }
