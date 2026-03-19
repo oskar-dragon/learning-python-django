@@ -17,7 +17,9 @@ export type ValidationErrorItem = {
   msg: string;
 };
 
-export type FieldErrors<T> = { [K in keyof T]?: ValidationErrorItem };
+type FieldError = { msg: string };
+
+export type FieldErrors<T> = { [K in keyof T]?: FieldError };
 
 type ExcludeNever<T> = {
   [K in keyof T as [T[K]] extends [never] ? never : K]: T[K];
@@ -32,13 +34,13 @@ export type ExtractFields<T> = ExcludeNever<{
 export function flattenValidationErrors<
   T extends Record<string, Record<string, unknown>>,
 >(errors: ValidationErrorItem[]): { [S in keyof T]?: FieldErrors<T[S]> } {
-  const result: Record<string, Record<string, ValidationErrorItem>> = {};
+  const result: Record<string, Record<string, FieldError>> = {};
   for (const error of errors) {
     const [source, field] = error.loc;
     if (typeof source === "string" && field !== undefined) {
       const key = String(field);
       const sourceErrors = (result[source] ??= {});
-      sourceErrors[key] ??= error;
+      sourceErrors[key] ??= { msg: error.msg };
     }
   }
   return result as { [S in keyof T]?: FieldErrors<T[S]> };
