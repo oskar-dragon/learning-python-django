@@ -22,7 +22,7 @@ function describeProduct(product: ProductResponse): string {
 }
 
 // Example 2: match on errors only.
-// Uses the generated error union type — no manual assembly.
+// Uses the generated error union type — domain and framework errors discriminated by tag.
 function describeError(error: ProductsApiGetProductError): string {
   return match(error)
     .with(
@@ -33,6 +33,10 @@ function describeError(error: ProductsApiGetProductError): string {
       { tag: "ProductHiddenError" },
       (e) => `Product ${e.id} is restricted: ${e.detail}`,
     )
+    .with({ tag: "AuthenticationError" }, () => "Please log in")
+    .with({ tag: "AuthorizationError" }, () => "Access denied")
+    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }
 
@@ -49,6 +53,10 @@ function handleProductResponse(
     .with({ tag: "out_of_stock" }, (p) => `Sold out: ${p.name}`)
     .with({ tag: "ProductNotFoundError" }, (e) => `Not found: product ${e.id}`)
     .with({ tag: "ProductHiddenError" }, (e) => `Restricted: product ${e.id}`)
+    .with({ tag: "AuthenticationError" }, () => "Please log in")
+    .with({ tag: "AuthorizationError" }, () => "Access denied")
+    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }
 

@@ -139,6 +139,11 @@ export type PublishedPost = {
 };
 
 /**
+ * PostErrors
+ */
+export type PostErrors = PostNotFoundError;
+
+/**
  * PostNotFoundError
  */
 export type PostNotFoundError = {
@@ -292,13 +297,18 @@ export type ShippedOrder = {
 };
 
 /**
- * OrderNotFoundError
+ * OrderErrors
  */
-export type OrderNotFoundError = {
+export type OrderErrors = OrderNotFoundError | OrderNotAccessibleError;
+
+/**
+ * OrderNotAccessibleError
+ */
+export type OrderNotAccessibleError = {
     /**
      * Tag
      */
-    tag: 'OrderNotFoundError';
+    tag: 'OrderNotAccessibleError';
     /**
      * Detail
      */
@@ -310,13 +320,13 @@ export type OrderNotFoundError = {
 };
 
 /**
- * OrderNotAccessibleError
+ * OrderNotFoundError
  */
-export type OrderNotAccessibleError = {
+export type OrderNotFoundError = {
     /**
      * Tag
      */
-    tag: 'OrderNotAccessibleError';
+    tag: 'OrderNotFoundError';
     /**
      * Detail
      */
@@ -389,13 +399,18 @@ export type OutOfStockProduct = {
 export type ProductResponse = AvailableProduct | OutOfStockProduct;
 
 /**
- * ProductNotFoundError
+ * ProductErrors
  */
-export type ProductNotFoundError = {
+export type ProductErrors = ProductNotFoundError | ProductHiddenError;
+
+/**
+ * ProductHiddenError
+ */
+export type ProductHiddenError = {
     /**
      * Tag
      */
-    tag: 'ProductNotFoundError';
+    tag: 'ProductHiddenError';
     /**
      * Detail
      */
@@ -407,13 +422,13 @@ export type ProductNotFoundError = {
 };
 
 /**
- * ProductHiddenError
+ * ProductNotFoundError
  */
-export type ProductHiddenError = {
+export type ProductNotFoundError = {
     /**
      * Tag
      */
-    tag: 'ProductHiddenError';
+    tag: 'ProductNotFoundError';
     /**
      * Detail
      */
@@ -454,6 +469,32 @@ export type TokenObtainPairData = {
     url: '/api/token/pair';
 };
 
+export type TokenObtainPairErrors = {
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type TokenObtainPairError = TokenObtainPairErrors[keyof TokenObtainPairErrors];
+
 export type TokenObtainPairResponses = {
     /**
      * OK
@@ -469,6 +510,32 @@ export type TokenRefreshData = {
     query?: never;
     url: '/api/token/refresh';
 };
+
+export type TokenRefreshErrors = {
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type TokenRefreshError = TokenRefreshErrors[keyof TokenRefreshErrors];
 
 export type TokenRefreshResponses = {
     /**
@@ -486,6 +553,32 @@ export type TokenVerifyData = {
     url: '/api/token/verify';
 };
 
+export type TokenVerifyErrors = {
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type TokenVerifyError = TokenVerifyErrors[keyof TokenVerifyErrors];
+
 export type TokenVerifyResponses = {
     /**
      * OK
@@ -501,6 +594,32 @@ export type BlogApiGetPostsData = {
     query?: never;
     url: '/api/blog/posts/';
 };
+
+export type BlogApiGetPostsErrors = {
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type BlogApiGetPostsError = BlogApiGetPostsErrors[keyof BlogApiGetPostsErrors];
 
 export type BlogApiGetPostsResponses = {
     /**
@@ -527,9 +646,30 @@ export type BlogApiGetPostData = {
 
 export type BlogApiGetPostErrors = {
     /**
-     * Not Found
+     * Bad Request
      */
-    404: PostNotFoundError;
+    400: PostErrors;
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
 };
 
 export type BlogApiGetPostError = BlogApiGetPostErrors[keyof BlogApiGetPostErrors];
@@ -564,6 +704,50 @@ export type OrdersApiListOrdersData = {
     url: '/api/orders/';
 };
 
+export type OrdersApiListOrdersErrors = {
+    /**
+     * AuthenticationError
+     *
+     * Unauthorized
+     */
+    401: {
+        tag: 'AuthenticationError';
+        detail: string;
+    };
+    /**
+     * AuthorizationError
+     *
+     * Forbidden
+     */
+    403: {
+        tag: 'AuthorizationError';
+        detail: string;
+    };
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type OrdersApiListOrdersError = OrdersApiListOrdersErrors[keyof OrdersApiListOrdersErrors];
+
 export type OrdersApiListOrdersResponses = {
     /**
      * Response
@@ -589,13 +773,48 @@ export type OrdersApiGetOrderData = {
 
 export type OrdersApiGetOrderErrors = {
     /**
+     * Bad Request
+     */
+    400: OrderErrors;
+    /**
+     * AuthenticationError
+     *
+     * Unauthorized
+     */
+    401: {
+        tag: 'AuthenticationError';
+        detail: string;
+    };
+    /**
+     * AuthorizationError
+     *
      * Forbidden
      */
-    403: OrderNotAccessibleError;
+    403: {
+        tag: 'AuthorizationError';
+        detail: string;
+    };
     /**
-     * Not Found
+     * ValidationError
+     *
+     * Unprocessable Entity
      */
-    404: OrderNotFoundError;
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
 };
 
 export type OrdersApiGetOrderError = OrdersApiGetOrderErrors[keyof OrdersApiGetOrderErrors];
@@ -615,6 +834,50 @@ export type ProductsApiListProductsData = {
     query?: never;
     url: '/api/products/';
 };
+
+export type ProductsApiListProductsErrors = {
+    /**
+     * AuthenticationError
+     *
+     * Unauthorized
+     */
+    401: {
+        tag: 'AuthenticationError';
+        detail: string;
+    };
+    /**
+     * AuthorizationError
+     *
+     * Forbidden
+     */
+    403: {
+        tag: 'AuthorizationError';
+        detail: string;
+    };
+    /**
+     * ValidationError
+     *
+     * Unprocessable Entity
+     */
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
+};
+
+export type ProductsApiListProductsError = ProductsApiListProductsErrors[keyof ProductsApiListProductsErrors];
 
 export type ProductsApiListProductsResponses = {
     /**
@@ -641,13 +904,48 @@ export type ProductsApiGetProductData = {
 
 export type ProductsApiGetProductErrors = {
     /**
+     * Bad Request
+     */
+    400: ProductErrors;
+    /**
+     * AuthenticationError
+     *
+     * Unauthorized
+     */
+    401: {
+        tag: 'AuthenticationError';
+        detail: string;
+    };
+    /**
+     * AuthorizationError
+     *
      * Forbidden
      */
-    403: ProductHiddenError;
+    403: {
+        tag: 'AuthorizationError';
+        detail: string;
+    };
     /**
-     * Not Found
+     * ValidationError
+     *
+     * Unprocessable Entity
      */
-    404: ProductNotFoundError;
+    422: {
+        tag: 'ValidationError';
+        detail: string;
+        errors: Array<{
+            [key: string]: unknown;
+        }>;
+    };
+    /**
+     * InternalError
+     *
+     * Internal Server Error
+     */
+    500: {
+        tag: 'InternalError';
+        detail: string;
+    };
 };
 
 export type ProductsApiGetProductError = ProductsApiGetProductErrors[keyof ProductsApiGetProductErrors];

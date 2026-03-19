@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { BlogApiGetPostData, BlogApiGetPostErrors, BlogApiGetPostResponses, BlogApiGetPostsData, BlogApiGetPostsResponses, OrdersApiGetOrderData, OrdersApiGetOrderErrors, OrdersApiGetOrderResponses, OrdersApiListOrdersData, OrdersApiListOrdersResponses, ProductsApiGetProductData, ProductsApiGetProductErrors, ProductsApiGetProductResponses, ProductsApiListProductsData, ProductsApiListProductsResponses, TokenObtainPairData, TokenObtainPairResponses, TokenRefreshData, TokenRefreshResponses, TokenVerifyData, TokenVerifyResponses } from './types.gen';
+import type { BlogApiGetPostData, BlogApiGetPostErrors, BlogApiGetPostResponses, BlogApiGetPostsData, BlogApiGetPostsErrors, BlogApiGetPostsResponses, OrdersApiGetOrderData, OrdersApiGetOrderErrors, OrdersApiGetOrderResponses, OrdersApiListOrdersData, OrdersApiListOrdersErrors, OrdersApiListOrdersResponses, ProductsApiGetProductData, ProductsApiGetProductErrors, ProductsApiGetProductResponses, ProductsApiListProductsData, ProductsApiListProductsErrors, ProductsApiListProductsResponses, TokenObtainPairData, TokenObtainPairErrors, TokenObtainPairResponses, TokenRefreshData, TokenRefreshErrors, TokenRefreshResponses, TokenVerifyData, TokenVerifyErrors, TokenVerifyResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -21,7 +21,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Obtain Token
  */
-export const tokenObtainPair = <ThrowOnError extends boolean = false>(options: Options<TokenObtainPairData, ThrowOnError>) => (options.client ?? client).post<TokenObtainPairResponses, unknown, ThrowOnError>({
+export const tokenObtainPair = <ThrowOnError extends boolean = false>(options: Options<TokenObtainPairData, ThrowOnError>) => (options.client ?? client).post<TokenObtainPairResponses, TokenObtainPairErrors, ThrowOnError>({
     url: '/api/token/pair',
     ...options,
     headers: {
@@ -33,7 +33,7 @@ export const tokenObtainPair = <ThrowOnError extends boolean = false>(options: O
 /**
  * Refresh Token
  */
-export const tokenRefresh = <ThrowOnError extends boolean = false>(options: Options<TokenRefreshData, ThrowOnError>) => (options.client ?? client).post<TokenRefreshResponses, unknown, ThrowOnError>({
+export const tokenRefresh = <ThrowOnError extends boolean = false>(options: Options<TokenRefreshData, ThrowOnError>) => (options.client ?? client).post<TokenRefreshResponses, TokenRefreshErrors, ThrowOnError>({
     url: '/api/token/refresh',
     ...options,
     headers: {
@@ -45,7 +45,7 @@ export const tokenRefresh = <ThrowOnError extends boolean = false>(options: Opti
 /**
  * Verify Token
  */
-export const tokenVerify = <ThrowOnError extends boolean = false>(options: Options<TokenVerifyData, ThrowOnError>) => (options.client ?? client).post<TokenVerifyResponses, unknown, ThrowOnError>({
+export const tokenVerify = <ThrowOnError extends boolean = false>(options: Options<TokenVerifyData, ThrowOnError>) => (options.client ?? client).post<TokenVerifyResponses, TokenVerifyErrors, ThrowOnError>({
     url: '/api/token/verify',
     ...options,
     headers: {
@@ -57,7 +57,7 @@ export const tokenVerify = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Get Posts
  */
-export const blogApiGetPosts = <ThrowOnError extends boolean = false>(options?: Options<BlogApiGetPostsData, ThrowOnError>) => (options?.client ?? client).get<BlogApiGetPostsResponses, unknown, ThrowOnError>({ url: '/api/blog/posts/', ...options });
+export const blogApiGetPosts = <ThrowOnError extends boolean = false>(options?: Options<BlogApiGetPostsData, ThrowOnError>) => (options?.client ?? client).get<BlogApiGetPostsResponses, BlogApiGetPostsErrors, ThrowOnError>({ url: '/api/blog/posts/', ...options });
 
 /**
  * Get Post
@@ -67,7 +67,7 @@ export const blogApiGetPost = <ThrowOnError extends boolean = false>(options: Op
 /**
  * List Orders
  */
-export const ordersApiListOrders = <ThrowOnError extends boolean = false>(options?: Options<OrdersApiListOrdersData, ThrowOnError>) => (options?.client ?? client).get<OrdersApiListOrdersResponses, unknown, ThrowOnError>({
+export const ordersApiListOrders = <ThrowOnError extends boolean = false>(options?: Options<OrdersApiListOrdersData, ThrowOnError>) => (options?.client ?? client).get<OrdersApiListOrdersResponses, OrdersApiListOrdersErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/orders/',
     ...options
@@ -85,7 +85,7 @@ export const ordersApiGetOrder = <ThrowOnError extends boolean = false>(options:
 /**
  * List Products
  */
-export const productsApiListProducts = <ThrowOnError extends boolean = false>(options?: Options<ProductsApiListProductsData, ThrowOnError>) => (options?.client ?? client).get<ProductsApiListProductsResponses, unknown, ThrowOnError>({
+export const productsApiListProducts = <ThrowOnError extends boolean = false>(options?: Options<ProductsApiListProductsData, ThrowOnError>) => (options?.client ?? client).get<ProductsApiListProductsResponses, ProductsApiListProductsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/products/',
     ...options

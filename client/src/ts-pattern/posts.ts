@@ -1,9 +1,9 @@
 import { match } from "ts-pattern";
 import type {
+  BlogApiGetPostError,
   DraftPost,
-  PublishedPost,
-  PostNotFoundError,
   PostResponse,
+  PublishedPost,
 } from "../generated/types.gen";
 
 // Example 1: match on the PostResponse discriminated union.
@@ -24,17 +24,20 @@ function describePost(post: PostResponse): string {
 }
 
 // Example 2: match on errors only.
-function describeError(error: PostNotFoundError): string {
+// Uses the generated error union type — domain and framework errors discriminated by tag.
+function describeError(error: BlogApiGetPostError): string {
   return match(error)
     .with(
       { tag: "PostNotFoundError" },
       (e) => `Post ${e.id} not found: ${e.detail}`,
     )
+    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }
 
 // Example 3: combined success + error match in one exhaustive chain.
-function handlePostResult(result: PostResponse | PostNotFoundError): string {
+function handlePostResult(result: PostResponse | BlogApiGetPostError): string {
   return match(result)
     .with({ tag: "draft" }, (p) => `Draft: ${p.title}`)
     .with({ tag: "published" }, (p) => `Published: ${p.title}`)
@@ -42,5 +45,7 @@ function handlePostResult(result: PostResponse | PostNotFoundError): string {
       { tag: "PostNotFoundError" },
       (e) => `Not found: post ${e.id} — ${e.detail}`,
     )
+    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }

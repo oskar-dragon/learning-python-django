@@ -1,8 +1,7 @@
 import { match } from "ts-pattern";
 import type {
   CancelledOrder,
-  OrderNotAccessibleError,
-  OrderNotFoundError,
+  OrdersApiGetOrderError,
   OrderResponse,
   PendingOrder,
   ShippedOrder,
@@ -27,18 +26,21 @@ function describeOrder(order: OrderResponse): string {
     .exhaustive();
 }
 
-function describeError(
-  error: OrderNotFoundError | OrderNotAccessibleError,
-): string {
+// All errors — domain and framework — discriminated by tag.
+function describeError(error: OrdersApiGetOrderError): string {
   return match(error)
     .with(
       { tag: "OrderNotFoundError" },
-      (e: OrderNotFoundError) => `Order ${e.id} not found`,
+      (e) => `Order ${e.id} not found`,
     )
     .with(
       { tag: "OrderNotAccessibleError" },
-      (e: OrderNotAccessibleError) => `Order ${e.id} is not accessible`,
+      (e) => `Order ${e.id} is not accessible`,
     )
+    .with({ tag: "AuthenticationError" }, () => "Please log in")
+    .with({ tag: "AuthorizationError" }, () => "Access denied")
+    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }
 
