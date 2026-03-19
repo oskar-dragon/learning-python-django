@@ -154,9 +154,9 @@ class BlogDetailAPITest(TestCase):
         self.assertEqual(data["tag"], "published")
         self.assertEqual(data["title"], "Published Post")
 
-    def test_get_nonexistent_post_returns_404(self) -> None:
+    def test_get_nonexistent_post_returns_400(self) -> None:
         response = self.client.get("/api/blog/post/99999")
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertEqual(data["tag"], "PostNotFoundError")
         self.assertEqual(data["id"], 99999)

@@ -22,3 +22,7 @@ class PostResponse(RootModel[DraftPost | PublishedPost]):
 
 class PostNotFoundError(AppError):
     id: int
+
+
+class PostErrors(RootModel[PostNotFoundError]):
+    pass
