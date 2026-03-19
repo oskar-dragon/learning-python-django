@@ -1,27 +1,27 @@
 import { match } from "ts-pattern";
 import type {
-  CancelledOrderSchema,
+  CancelledOrder,
   OrderNotAccessibleError,
   OrderNotFoundError,
-  OrderResult,
-  PendingOrderSchema,
-  ShippedOrderSchema,
+  OrderResponse,
+  PendingOrder,
+  ShippedOrder,
 } from "../generated/types.gen";
 
-function describeOrder(order: OrderResult): string {
+function describeOrder(order: OrderResponse): string {
   return match(order)
     .with(
-      { tag: "pending" },
-      (o: PendingOrderSchema) => `Order for ${o.customer_name} is pending`,
+      { tag: "PendingOrder" },
+      (o: PendingOrder) => `Order for ${o.customer_name} is pending`,
     )
     .with(
-      { tag: "shipped" },
-      (o: ShippedOrderSchema) =>
+      { tag: "ShippedOrder" },
+      (o: ShippedOrder) =>
         `Order for ${o.customer_name} shipped — tracking: ${o.tracking_number}`,
     )
     .with(
-      { tag: "cancelled" },
-      (o: CancelledOrderSchema) =>
+      { tag: "CancelledOrder" },
+      (o: CancelledOrder) =>
         `Order for ${o.customer_name} cancelled — reason: ${o.cancellation_reason}`,
     )
     .exhaustive();
@@ -32,11 +32,11 @@ function describeError(
 ): string {
   return match(error)
     .with(
-      { tag: "order_not_found" },
+      { tag: "OrderNotFoundError" },
       (e: OrderNotFoundError) => `Order ${e.id} not found`,
     )
     .with(
-      { tag: "order_not_accessible" },
+      { tag: "OrderNotAccessibleError" },
       (e: OrderNotAccessibleError) => `Order ${e.id} is not accessible`,
     )
     .exhaustive();

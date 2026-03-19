@@ -1,20 +1,19 @@
 from orders.exceptions import OrderNotAccessible, OrderNotFound
 from orders.models import Order
 from orders.schemas import (
-    CancelledOrderSchema,
+    CancelledOrder,
     OrderFilters,
-    PendingOrderSchema,
-    ShippedOrderSchema,
+    PendingOrder,
+    ShippedOrder,
 )
 
-OrderQueryResult = PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema
+OrderQueryResult = PendingOrder | ShippedOrder | CancelledOrder
 
 
 def _to_schema(order: Order) -> OrderQueryResult:
     match order.status:
         case Order.Status.PENDING:
-            return PendingOrderSchema(
-                tag="pending",
+            return PendingOrder(
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,
@@ -22,8 +21,7 @@ def _to_schema(order: Order) -> OrderQueryResult:
                 created_at=order.created_at,
             )
         case Order.Status.SHIPPED:
-            return ShippedOrderSchema(
-                tag="shipped",
+            return ShippedOrder(
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,
@@ -33,8 +31,7 @@ def _to_schema(order: Order) -> OrderQueryResult:
                 created_at=order.created_at,
             )
         case Order.Status.CANCELLED:
-            return CancelledOrderSchema(
-                tag="cancelled",
+            return CancelledOrder(
                 id=order.pk,
                 customer_name=order.customer_name,
                 items_count=order.items_count,

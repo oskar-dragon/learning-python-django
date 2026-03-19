@@ -78,13 +78,13 @@ export type TokenVerifyInputSchema = {
 };
 
 /**
- * DraftPostSchema
+ * DraftPost
  */
-export type DraftPostSchema = {
+export type DraftPost = {
     /**
-     * Status
+     * Tag
      */
-    status: 'DF';
+    tag: 'draft';
     /**
      * ID
      */
@@ -104,13 +104,18 @@ export type DraftPostSchema = {
 };
 
 /**
- * PublishedPostSchema
+ * PostResponse
  */
-export type PublishedPostSchema = {
+export type PostResponse = DraftPost | PublishedPost;
+
+/**
+ * PublishedPost
+ */
+export type PublishedPost = {
     /**
-     * Status
+     * Tag
      */
-    status: 'PB';
+    tag: 'published';
     /**
      * ID
      */
@@ -140,7 +145,7 @@ export type PostNotFoundError = {
     /**
      * Tag
      */
-    tag: 'post_not_found';
+    tag: 'PostNotFoundError';
     /**
      * Detail
      */
@@ -176,13 +181,13 @@ export type OrderFilters = {
 export type Status = 'draft' | 'pending' | 'shipped' | 'cancelled';
 
 /**
- * CancelledOrderSchema
+ * CancelledOrder
  */
-export type CancelledOrderSchema = {
+export type CancelledOrder = {
     /**
      * Tag
      */
-    tag: 'cancelled';
+    tag: 'CancelledOrder';
     /**
      * Id
      */
@@ -214,18 +219,18 @@ export type CancelledOrderSchema = {
 };
 
 /**
- * OrderResult
+ * OrderResponse
  */
-export type OrderResult = PendingOrderSchema | ShippedOrderSchema | CancelledOrderSchema;
+export type OrderResponse = PendingOrder | ShippedOrder | CancelledOrder;
 
 /**
- * PendingOrderSchema
+ * PendingOrder
  */
-export type PendingOrderSchema = {
+export type PendingOrder = {
     /**
      * Tag
      */
-    tag: 'pending';
+    tag: 'PendingOrder';
     /**
      * Id
      */
@@ -249,13 +254,13 @@ export type PendingOrderSchema = {
 };
 
 /**
- * ShippedOrderSchema
+ * ShippedOrder
  */
-export type ShippedOrderSchema = {
+export type ShippedOrder = {
     /**
      * Tag
      */
-    tag: 'shipped';
+    tag: 'ShippedOrder';
     /**
      * Id
      */
@@ -293,7 +298,7 @@ export type OrderNotFoundError = {
     /**
      * Tag
      */
-    tag: 'order_not_found';
+    tag: 'OrderNotFoundError';
     /**
      * Detail
      */
@@ -311,7 +316,7 @@ export type OrderNotAccessibleError = {
     /**
      * Tag
      */
-    tag: 'order_not_accessible';
+    tag: 'OrderNotAccessibleError';
     /**
      * Detail
      */
@@ -323,11 +328,9 @@ export type OrderNotAccessibleError = {
 };
 
 /**
- * AvailableProductSchema
- *
- * Available product — has stock_count. tag maps from ORM's status field.
+ * AvailableProduct
  */
-export type AvailableProductSchema = {
+export type AvailableProduct = {
     /**
      * Tag
      */
@@ -355,11 +358,9 @@ export type AvailableProductSchema = {
 };
 
 /**
- * OutOfStockProductSchema
- *
- * Out-of-stock product — no stock_count. tag maps from ORM's status field.
+ * OutOfStockProduct
  */
-export type OutOfStockProductSchema = {
+export type OutOfStockProduct = {
     /**
      * Tag
      */
@@ -383,11 +384,9 @@ export type OutOfStockProductSchema = {
 };
 
 /**
- * ProductResult
- *
- * Named discriminated union for product success responses.
+ * ProductResponse
  */
-export type ProductResult = AvailableProductSchema | OutOfStockProductSchema;
+export type ProductResponse = AvailableProduct | OutOfStockProduct;
 
 /**
  * ProductNotFoundError
@@ -396,7 +395,7 @@ export type ProductNotFoundError = {
     /**
      * Tag
      */
-    tag: 'product_not_found';
+    tag: 'ProductNotFoundError';
     /**
      * Detail
      */
@@ -414,7 +413,7 @@ export type ProductHiddenError = {
     /**
      * Tag
      */
-    tag: 'product_hidden';
+    tag: 'ProductHiddenError';
     /**
      * Detail
      */
@@ -509,11 +508,7 @@ export type BlogApiGetPostsResponses = {
      *
      * OK
      */
-    200: Array<({
-        status: 'DF';
-    } & DraftPostSchema) | ({
-        status: 'PB';
-    } & PublishedPostSchema)>;
+    200: Array<PostResponse>;
 };
 
 export type BlogApiGetPostsResponse = BlogApiGetPostsResponses[keyof BlogApiGetPostsResponses];
@@ -541,15 +536,9 @@ export type BlogApiGetPostError = BlogApiGetPostErrors[keyof BlogApiGetPostError
 
 export type BlogApiGetPostResponses = {
     /**
-     * Response
-     *
      * OK
      */
-    200: ({
-        status: 'DF';
-    } & DraftPostSchema) | ({
-        status: 'PB';
-    } & PublishedPostSchema);
+    200: PostResponse;
 };
 
 export type BlogApiGetPostResponse = BlogApiGetPostResponses[keyof BlogApiGetPostResponses];
@@ -581,7 +570,7 @@ export type OrdersApiListOrdersResponses = {
      *
      * OK
      */
-    200: Array<OrderResult>;
+    200: Array<OrderResponse>;
 };
 
 export type OrdersApiListOrdersResponse = OrdersApiListOrdersResponses[keyof OrdersApiListOrdersResponses];
@@ -615,7 +604,7 @@ export type OrdersApiGetOrderResponses = {
     /**
      * OK
      */
-    200: OrderResult;
+    200: OrderResponse;
 };
 
 export type OrdersApiGetOrderResponse = OrdersApiGetOrderResponses[keyof OrdersApiGetOrderResponses];
@@ -633,7 +622,7 @@ export type ProductsApiListProductsResponses = {
      *
      * OK
      */
-    200: Array<ProductResult>;
+    200: Array<ProductResponse>;
 };
 
 export type ProductsApiListProductsResponse = ProductsApiListProductsResponses[keyof ProductsApiListProductsResponses];
@@ -667,7 +656,7 @@ export type ProductsApiGetProductResponses = {
     /**
      * OK
      */
-    200: ProductResult;
+    200: ProductResponse;
 };
 
 export type ProductsApiGetProductResponse = ProductsApiGetProductResponses[keyof ProductsApiGetProductResponses];

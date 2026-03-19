@@ -14,8 +14,8 @@ class PublishedManager(models.Manager["Post"]):
 
 class Post(models.Model):
     class Status(models.TextChoices):
-        DRAFT = "DF", "Draft"
-        PUBLISHED = "PB", "Published"
+        DRAFT = "draft", "Draft"
+        PUBLISHED = "published", "Published"
 
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250)
@@ -26,7 +26,7 @@ class Post(models.Model):
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=2, choices=Status, default=Status.DRAFT)
+    status = models.CharField(max_length=20, choices=Status, default=Status.DRAFT)
 
     objects = models.Manager["Post"]()
     published = PublishedManager()
