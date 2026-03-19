@@ -1,11 +1,13 @@
 import { match } from "ts-pattern";
 import type {
   CancelledOrder,
+  OrdersApiGetOrderData,
   OrdersApiGetOrderError,
   OrderResponse,
   PendingOrder,
   ShippedOrder,
 } from "../generated/types.gen";
+import { flattenValidationErrors, type ExtractFields } from "./errors.ts";
 
 function describeOrder(order: OrderResponse): string {
   return match(order)
@@ -39,7 +41,11 @@ function describeError(error: OrdersApiGetOrderError): string {
     )
     .with({ tag: "AuthenticationError" }, () => "Please log in")
     .with({ tag: "AuthorizationError" }, () => "Access denied")
-    .with({ tag: "ValidationError" }, () => "Invalid request")
+    .with({ tag: "ValidationError" }, (e) => {
+      const fields = flattenValidationErrors<ExtractFields<OrdersApiGetOrderData>>(e.errors);
+      // Field-level access with autocomplete: fields.path?.order_id?.msg
+      return fields.path?.order_id?.msg ?? "Validation error";
+    })
     .with({ tag: "InternalError" }, () => "Something went wrong")
     .exhaustive();
 }
