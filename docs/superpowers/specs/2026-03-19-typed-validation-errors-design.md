@@ -72,16 +72,21 @@ export type OrdersApiListOrdersData = {
 };
 ```
 
-A helper type preserves the param source grouping from the request type:
+A helper type preserves the param source grouping from the request type. It filters out keys typed as `never` (the generated `Data` types use `body?: never` for endpoints without a body, not omission):
 
 ```typescript
-type ExtractFields<T> = {
-    [K in "query" | "body" | "path" as T extends Record<K, unknown> ? K : never]:
-        NonNullable<T extends Record<K, infer V> ? V : never>;
+type ExcludeNever<T> = {
+    [K in keyof T as [T[K]] extends [never] ? never : K]: T[K];
 };
+
+type ExtractFields<T> = ExcludeNever<{
+    query: T extends { query?: infer Q } ? NonNullable<Q> : never;
+    body: T extends { body?: infer B } ? NonNullable<B> : never;
+    path: T extends { path?: infer P } ? NonNullable<P> : never;
+}>;
 ```
 
-This produces e.g. `{ query: { status: ...; q: ...; }; path: { order_id: ... } }` — matching the param source grouping in `loc[0]`.
+For `OrdersApiListOrdersData` (query params only), this produces `{ query: { status: ...; q: ...; } }`. For `OrdersApiGetOrderData` (path param only), this produces `{ path: { order_id: ... } }`.
 
 ### 4. Frontend Usage
 
@@ -103,7 +108,7 @@ import type { OrdersApiGetOrderData } from "../generated/types.gen";
 .with({ tag: "ValidationError" }, (e) => {
     const fields = flattenValidationErrors<ExtractFields<OrdersApiGetOrderData>>(e.errors);
     fields.path?.order_id?.msg      // autocomplete on path params
-    fields.query?.status?.msg       // autocomplete on query params (if any)
+    fields.query                    // compile error — this endpoint has no query params
 })
 ```
 
