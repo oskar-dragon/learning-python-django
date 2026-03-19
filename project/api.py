@@ -17,46 +17,34 @@ logger = logging.getLogger(__name__)
 
 # Framework error schemas — defined as JSON schema dicts (not Pydantic models)
 # because they are only needed for OpenAPI generation, not serialization.
-_VALIDATION_ERROR_SCHEMA: dict = {
-    "type": "object",
-    "properties": {
-        "tag": {"type": "string", "const": "ValidationError"},
-        "detail": {"type": "string"},
-        "errors": {"type": "array", "items": {"type": "object"}},
-    },
-    "required": ["tag", "detail", "errors"],
-    "title": "ValidationError",
-}
 
-_AUTHENTICATION_ERROR_SCHEMA: dict = {
-    "type": "object",
-    "properties": {
-        "tag": {"type": "string", "const": "AuthenticationError"},
-        "detail": {"type": "string"},
-    },
-    "required": ["tag", "detail"],
-    "title": "AuthenticationError",
-}
+_NOT_FOUND_BODY: dict = {"tag": "NotFoundError", "detail": "Not found"}
 
-_AUTHORIZATION_ERROR_SCHEMA: dict = {
-    "type": "object",
-    "properties": {
-        "tag": {"type": "string", "const": "AuthorizationError"},
-        "detail": {"type": "string"},
-    },
-    "required": ["tag", "detail"],
-    "title": "AuthorizationError",
-}
 
-_INTERNAL_ERROR_SCHEMA: dict = {
-    "type": "object",
-    "properties": {
-        "tag": {"type": "string", "const": "InternalError"},
+def _error_schema(tag: str, extra_properties: dict | None = None) -> dict:
+    """Build a JSON Schema object for a tagged error response."""
+    properties: dict = {
+        "tag": {"type": "string", "const": tag},
         "detail": {"type": "string"},
-    },
-    "required": ["tag", "detail"],
-    "title": "InternalError",
-}
+    }
+    required = ["tag", "detail"]
+    if extra_properties:
+        properties.update(extra_properties)
+        required.extend(extra_properties.keys())
+    return {
+        "type": "object",
+        "properties": properties,
+        "required": required,
+        "title": tag,
+    }
+
+
+_VALIDATION_ERROR_SCHEMA = _error_schema(
+    "ValidationError", {"errors": {"type": "array", "items": {"type": "object"}}}
+)
+_AUTHENTICATION_ERROR_SCHEMA = _error_schema("AuthenticationError")
+_AUTHORIZATION_ERROR_SCHEMA = _error_schema("AuthorizationError")
+_INTERNAL_ERROR_SCHEMA = _error_schema("InternalError")
 
 
 class TaggedErrorAPI(NinjaExtraAPI):
@@ -70,7 +58,7 @@ class TaggedErrorAPI(NinjaExtraAPI):
                 if not isinstance(method_detail, dict) or "responses" not in method_detail:
                     continue
                 responses = method_detail["responses"]
-                has_auth = "security" in method_detail and method_detail["security"]
+                has_auth = method_detail.get("security")
 
                 # Always inject: 422 ValidationError, 500 InternalError
                 if "422" not in responses:
@@ -151,17 +139,13 @@ def handle_http_error(request: HttpRequest, exc: HttpError) -> HttpResponse:
 
 @api.exception_handler(Http404)
 def handle_404(request: HttpRequest, exc: Http404) -> HttpResponse:
-    return api.create_response(
-        request,
-        {"tag": "NotFoundError", "detail": "Not found"},
-        status=404,
-    )
+    return api.create_response(request, _NOT_FOUND_BODY, status=404)
 
 
 def django_404_handler(request: HttpRequest, exception: Exception) -> HttpResponse:
     """Django-level 404 handler for URL routing misses (outside Ninja's exception system)."""
     return HttpResponse(
-        json.dumps({"tag": "NotFoundError", "detail": "Not found"}),
+        json.dumps(_NOT_FOUND_BODY),
         content_type="application/json",
         status=404,
     )
