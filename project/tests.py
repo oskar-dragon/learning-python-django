@@ -68,3 +68,47 @@ class FrameworkErrorTagTest(TestCase):
         self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertEqual(data["tag"], "OrderNotFoundError")
+
+
+class OpenAPISchemaInjectionTest(TestCase):
+    """Verify that framework error schemas are injected into every endpoint."""
+
+    def test_endpoint_has_validation_error_schema(self) -> None:
+        """Every endpoint should have a 422 response with ValidationError schema."""
+        response = self.client.get("/api/openapi.json")
+        schema = response.json()
+        # Check a specific endpoint — get_order
+        get_order_responses = schema["paths"]["/api/orders/{order_id}/"]["get"]["responses"]
+        self.assertIn("422", get_order_responses)
+        content = get_order_responses["422"]["content"]["application/json"]["schema"]
+        self.assertIn("properties", content)
+        self.assertEqual(content["properties"]["tag"]["const"], "ValidationError")
+
+    def test_authenticated_endpoint_has_auth_error_schema(self) -> None:
+        """Endpoints with auth should have 401 and 403 responses."""
+        response = self.client.get("/api/openapi.json")
+        schema = response.json()
+        get_order_responses = schema["paths"]["/api/orders/{order_id}/"]["get"]["responses"]
+        self.assertIn("401", get_order_responses)
+        self.assertIn("403", get_order_responses)
+
+    def test_unauthenticated_endpoint_has_no_auth_error_schema(self) -> None:
+        """Endpoints without auth should NOT have 401/403 responses."""
+        response = self.client.get("/api/openapi.json")
+        schema = response.json()
+        get_posts_responses = schema["paths"]["/api/blog/posts/"]["get"]["responses"]
+        self.assertNotIn("401", get_posts_responses)
+        self.assertNotIn("403", get_posts_responses)
+
+    def test_every_endpoint_has_internal_error_schema(self) -> None:
+        """Every endpoint should have a 500 response with InternalError schema."""
+        response = self.client.get("/api/openapi.json")
+        schema = response.json()
+        for path, methods in schema["paths"].items():
+            for method, details in methods.items():
+                if method in ("get", "post", "put", "patch", "delete"):
+                    self.assertIn(
+                        "500",
+                        details["responses"],
+                        f"{method.upper()} {path} missing 500 response",
+                    )
