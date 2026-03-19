@@ -31,10 +31,7 @@ function describeOrder(order: OrderResponse): string {
 // All errors — domain and framework — discriminated by tag.
 function describeError(error: OrdersApiGetOrderError): string {
   return match(error)
-    .with(
-      { tag: "OrderNotFoundError" },
-      (e) => `Order ${e.id} not found`,
-    )
+    .with({ tag: "OrderNotFoundError" }, (e) => `Order ${e.id} not found`)
     .with(
       { tag: "OrderNotAccessibleError" },
       (e) => `Order ${e.id} is not accessible`,
@@ -42,8 +39,11 @@ function describeError(error: OrdersApiGetOrderError): string {
     .with({ tag: "AuthenticationError" }, () => "Please log in")
     .with({ tag: "AuthorizationError" }, () => "Access denied")
     .with({ tag: "ValidationError" }, (e) => {
-      const fields = flattenValidationErrors<ExtractFields<OrdersApiGetOrderData>>(e.errors);
+      const fields = flattenValidationErrors<
+        ExtractFields<OrdersApiGetOrderData>
+      >(e.errors);
       // Field-level access with autocomplete: fields.path?.order_id?.msg
+      fields.path?.order_id?.msg;
       return fields.path?.order_id?.msg ?? "Validation error";
     })
     .with({ tag: "InternalError" }, () => "Something went wrong")
