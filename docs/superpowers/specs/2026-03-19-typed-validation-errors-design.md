@@ -112,6 +112,27 @@ import type { OrdersApiGetOrderData } from "../generated/types.gen";
 })
 ```
 
+For an endpoint with all three param sources (e.g., `PUT /api/orders/{order_id}/?notify=true` with a JSON body):
+
+```typescript
+// Generated Data type would look like:
+type OrdersApiUpdateOrderData = {
+    body: { customer_name: string; items_count: number };
+    path: { order_id: number };
+    query?: { notify?: boolean };
+    url: '/api/orders/{order_id}/';
+};
+
+.with({ tag: "ValidationError" }, (e) => {
+    const fields = flattenValidationErrors<ExtractFields<OrdersApiUpdateOrderData>>(e.errors);
+    fields.body?.customer_name?.msg   // autocomplete on body fields
+    fields.body?.items_count?.msg     // works
+    fields.path?.order_id?.msg        // autocomplete on path params
+    fields.query?.notify?.msg         // autocomplete on query params
+    fields.body?.bogus                // compile error
+})
+```
+
 ## What Changes
 
 | Component | Before | After |
