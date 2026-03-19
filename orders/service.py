@@ -1,8 +1,10 @@
-from orders.exceptions import OrderNotAccessible, OrderNotFound
+from core.exceptions import AppException
 from orders.models import Order
 from orders.schemas import (
     CancelledOrder,
     OrderFilters,
+    OrderNotAccessibleError,
+    OrderNotFoundError,
     PendingOrder,
     ShippedOrder,
 )
@@ -41,13 +43,12 @@ def _to_schema(order: Order) -> OrderQueryResult:
                 created_at=order.created_at,
             )
         case Order.Status.DRAFT | _:
-            # DRAFT is excluded before _to_schema is called; this branch should never be reached
             raise ValueError(f"Unexpected order status in _to_schema: {order.status}")
 
 
 def list_orders(filters: OrderFilters) -> list[OrderQueryResult]:
     # Draft orders are always excluded — they are an internal status not exposed to consumers.
-    # list_orders never raises OrderNotFound/OrderNotAccessible: filters simply narrow results.
+    # list_orders never raises AppException: filters simply narrow results.
     qs = Order.objects.exclude(status=Order.Status.DRAFT)
     qs = filters.filter(qs)
     return [_to_schema(order) for order in qs]
@@ -57,9 +58,9 @@ def get_order(order_id: int) -> OrderQueryResult:
     try:
         order = Order.objects.get(id=order_id)
     except Order.DoesNotExist:
-        raise OrderNotFound(order_id)
+        raise AppException(OrderNotFoundError(id=order_id, detail="Order not found"))
 
     if order.status == Order.Status.DRAFT:
-        raise OrderNotAccessible(order_id)
+        raise AppException(OrderNotAccessibleError(id=order_id, detail="Order not accessible"))
 
     return _to_schema(order)

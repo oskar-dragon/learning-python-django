@@ -199,16 +199,16 @@ class OrdersDetailAPITest(TestCase):
         self.assertEqual(data["cancellation_reason"], "Changed mind")
         self.assertIn("cancelled_at", data)
 
-    def test_get_nonexistent_order_returns_404(self) -> None:
+    def test_get_nonexistent_order_returns_400(self) -> None:
         response = self.client.get("/api/orders/99999/", HTTP_AUTHORIZATION=self.token)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertEqual(data["tag"], "OrderNotFoundError")
         self.assertEqual(data["id"], 99999)
 
-    def test_get_draft_order_returns_403(self) -> None:
+    def test_get_draft_order_returns_400(self) -> None:
         response = self.client.get(f"/api/orders/{self.draft.pk}/", HTTP_AUTHORIZATION=self.token)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertEqual(data["tag"], "OrderNotAccessibleError")
         self.assertEqual(data["id"], self.draft.pk)
