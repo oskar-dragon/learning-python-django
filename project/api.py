@@ -13,7 +13,7 @@ api.register_controllers(NinjaJWTDefaultController)  # pyright: ignore[reportUnk
 
 @api.exception_handler(AppException)
 def handle_app_exception(request: HttpRequest, exc: AppException) -> HttpResponse:
-    return api.create_response(request, exc.error.model_dump(), status=exc.status_code)
+    return api.create_response(request, exc.error.model_dump(), status=400)
 
 
 api.add_router("/blog", blog_router)

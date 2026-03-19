@@ -183,13 +183,12 @@ class TaggedModelSchemaAutoTagTest(TestCase):
 
 
 class AppExceptionTest(TestCase):
-    def test_stores_status_code_and_error(self) -> None:
+    def test_stores_error(self) -> None:
         class TestError(AppError):
             pass
 
         error = TestError(detail="something went wrong")
-        exc = AppException(404, error)
-        self.assertEqual(exc.status_code, 404)
+        exc = AppException(error)
         self.assertIs(exc.error, error)
         self.assertEqual(error.tag, "TestError")
 
@@ -198,5 +197,5 @@ class AppExceptionTest(TestCase):
             pass
 
         error = TestError(detail="something went wrong")
-        exc = AppException(500, error)
+        exc = AppException(error)
         self.assertIsInstance(exc, Exception)
