@@ -39,8 +39,18 @@ def _error_schema(tag: str, extra_properties: dict | None = None) -> dict:
     }
 
 
+_VALIDATION_ERROR_ITEM_SCHEMA: dict = {
+    "type": "object",
+    "properties": {
+        "type": {"type": "string"},
+        "loc": {"type": "array", "items": {"type": "string"}},
+        "msg": {"type": "string"},
+    },
+    "required": ["type", "loc", "msg"],
+}
+
 _VALIDATION_ERROR_SCHEMA = _error_schema(
-    "ValidationError", {"errors": {"type": "array", "items": {"type": "object"}}}
+    "ValidationError", {"errors": {"type": "array", "items": _VALIDATION_ERROR_ITEM_SCHEMA}}
 )
 _AUTHENTICATION_ERROR_SCHEMA = _error_schema("AuthenticationError")
 _AUTHORIZATION_ERROR_SCHEMA = _error_schema("AuthorizationError")

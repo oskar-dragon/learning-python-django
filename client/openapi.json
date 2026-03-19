@@ -39,7 +39,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -126,7 +145,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -213,7 +251,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -304,7 +361,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -398,7 +474,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -553,7 +648,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -700,7 +814,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -831,7 +964,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },
@@ -978,7 +1130,26 @@
                                         "errors": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "loc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "msg": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "loc",
+                                                    "msg"
+                                                ]
                                             }
                                         }
                                     },

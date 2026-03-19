@@ -479,7 +479,9 @@ export type TokenObtainPairErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -521,7 +523,9 @@ export type TokenRefreshErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -563,7 +567,9 @@ export type TokenVerifyErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -605,7 +611,9 @@ export type BlogApiGetPostsErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -658,7 +666,9 @@ export type BlogApiGetPostErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -732,7 +742,9 @@ export type OrdersApiListOrdersErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -803,7 +815,9 @@ export type OrdersApiGetOrderErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -863,7 +877,9 @@ export type ProductsApiListProductsErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
@@ -934,7 +950,9 @@ export type ProductsApiGetProductErrors = {
         tag: 'ValidationError';
         detail: string;
         errors: Array<{
-            [key: string]: unknown;
+            type: string;
+            loc: Array<string>;
+            msg: string;
         }>;
     };
     /**
