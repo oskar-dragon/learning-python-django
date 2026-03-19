@@ -6,7 +6,7 @@ Validation errors return a flat array of `{ type, loc, msg }` items. On the fron
 
 ## Goals
 
-- Frontend gets autocomplete on field names when accessing validation errors (e.g., `fields.status?.msg`)
+- Frontend gets autocomplete on field names when accessing validation errors (e.g., `fields.query?.status?.msg`)
 - No backend changes — response shape stays as-is, OpenAPI schema stays as-is
 - A typed frontend utility (inspired by Zod's `.flatten()`) transforms the flat array into a field-keyed object
 
@@ -30,30 +30,30 @@ The OpenAPI schema stays as-is — global `ValidationError` with `errors: Array<
 
 ### 2. Frontend Utility: `flattenValidationErrors`
 
-Follows Zod's `.flatten()` pattern — flat keys, first error per field wins.
+Inspired by Zod's `.flatten()` — first error per field wins, grouped by param source.
 
 ```typescript
 type ValidationErrorItem = { type: string; loc: (string | number)[]; msg: string };
 
 type FieldErrors<T> = { [K in keyof T]?: ValidationErrorItem };
 
-function flattenValidationErrors<T extends Record<string, unknown>>(
+function flattenValidationErrors<T extends Record<string, Record<string, unknown>>>(
     errors: ValidationErrorItem[]
-): FieldErrors<T> {
-    const result: Record<string, ValidationErrorItem> = {};
+): { [S in keyof T]?: FieldErrors<T[S]> } {
+    const result: Record<string, Record<string, ValidationErrorItem>> = {};
     for (const error of errors) {
-        // loc is [source, field, ...rest] — key by the field name (loc[1])
-        const field = error.loc[1];
-        if (field !== undefined) {
+        const [source, field] = error.loc;
+        if (typeof source === "string" && field !== undefined) {
             const key = String(field);
-            result[key] ??= error;
+            result[source] ??= {};
+            result[source][key] ??= error;
         }
     }
-    return result as FieldErrors<T>;
+    return result as { [S in keyof T]?: FieldErrors<T[S]> };
 }
 ```
 
-The `loc[0]` (param source like `"query"`, `"body"`) is ignored for keying — fields are flat. `loc[1]` is the field name. First error per field wins; subsequent errors for the same field are dropped (same as Zod's `.flatten()`).
+Errors are grouped by `loc[0]` (param source: `"query"`, `"body"`, `"path"`) then keyed by `loc[1]` (field name). First error per field wins; subsequent errors for the same field are dropped. This preserves the param source separation, avoiding collisions between e.g. a query param `id` and a path param `id`.
 
 ### 3. Type Parameter: Derived from Generated Request Types
 
@@ -72,14 +72,16 @@ export type OrdersApiListOrdersData = {
 };
 ```
 
-A helper type extracts all field names from query + body + path:
+A helper type preserves the param source grouping from the request type:
 
 ```typescript
-type ExtractFields<T> =
-    (T extends { query?: infer Q } ? NonNullable<Q> : {}) &
-    (T extends { body?: infer B } ? NonNullable<B> : {}) &
-    (T extends { path?: infer P } ? NonNullable<P> : {});
+type ExtractFields<T> = {
+    [K in "query" | "body" | "path" as T extends Record<K, unknown> ? K : never]:
+        NonNullable<T extends Record<K, infer V> ? V : never>;
+};
 ```
+
+This produces e.g. `{ query: { status: ...; q: ...; }; path: { order_id: ... } }` — matching the param source grouping in `loc[0]`.
 
 ### 4. Frontend Usage
 
@@ -88,20 +90,21 @@ import type { OrdersApiListOrdersData } from "../generated/types.gen";
 
 .with({ tag: "ValidationError" }, (e) => {
     const fields = flattenValidationErrors<ExtractFields<OrdersApiListOrdersData>>(e.errors);
-    fields.status?.msg       // autocomplete: status | q | min_total | max_total
-    fields.q?.msg            // works
-    fields.bogus             // compile error
+    fields.query?.status?.msg       // autocomplete: status | q | min_total | max_total
+    fields.query?.bogus             // compile error
 })
 ```
 
-### 5. Convenience Type Alias (optional)
-
-To avoid repeating `flattenValidationErrors<ExtractFields<...>>`, a per-endpoint type alias can be defined:
+For an endpoint with both query and path params:
 
 ```typescript
-type OrdersListFields = ExtractFields<OrdersApiListOrdersData>;
+import type { OrdersApiGetOrderData } from "../generated/types.gen";
 
-const fields = flattenValidationErrors<OrdersListFields>(e.errors);
+.with({ tag: "ValidationError" }, (e) => {
+    const fields = flattenValidationErrors<ExtractFields<OrdersApiGetOrderData>>(e.errors);
+    fields.path?.order_id?.msg      // autocomplete on path params
+    fields.query?.status?.msg       // autocomplete on query params (if any)
+})
 ```
 
 ## What Changes
