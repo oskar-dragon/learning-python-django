@@ -26,7 +26,7 @@ class AppException(Exception):
         self.error = error
 ```
 
-No `status_code` parameter — all domain errors return HTTP 400.
+No `status_code` parameter — all domain errors return HTTP 400. This is a deliberate trade-off: we lose HTTP status code semantics for domain errors (e.g., 404 vs 403), but the frontend discriminates on `tag` exclusively, making status codes redundant for domain errors. Framework errors (auth, validation) retain their standard status codes.
 
 ### 2. Domain Error Definition
 
@@ -122,7 +122,12 @@ def handle_exception(request, exc):
             "detail": "Not found",
         }, status=404)
 
-    # Catch-all for unhandled exceptions
+    # Catch-all for unhandled exceptions.
+    # Log the exception so it's visible in error reporters (Sentry, etc.)
+    # before returning a generic tagged response.
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.exception("Unhandled exception: %s", exc)
     return api.create_response(request, {
         "tag": "InternalError",
         "detail": "Internal server error",
@@ -131,7 +136,7 @@ def handle_exception(request, exc):
 
 ### 7. OpenAPI Schema Injection
 
-Subclass `NinjaAPI` and override `get_openapi_schema()` to inject universal framework error responses into every endpoint's schema:
+Subclass `NinjaExtraAPI` (which the project already uses) and override `get_openapi_schema()` to inject universal framework error responses into every endpoint's schema:
 
 - **Always injected:** `ValidationError` (422), `HttpError` (variable), `InternalError` (500)
 - **Conditional on auth config:** `AuthenticationError` (401), `AuthorizationError` (403)
@@ -178,11 +183,11 @@ function handleError(error: OrderErrors | ValidationError | AuthenticationError 
 
 - `core/exceptions.py` — simplify `AppException` (remove `status_code`)
 - `core/schemas.py` — no changes needed
-- `project/api.py` — replace individual handlers with centralized handler, subclass `NinjaAPI` with `get_openapi_schema()` override
+- `project/api.py` — replace individual handlers with centralized handler, subclass `NinjaExtraAPI` with `get_openapi_schema()` override
 - `orders/exceptions.py` — delete (per-error wrappers no longer needed)
 - `orders/schemas.py` — add `OrderErrors` RootModel
 - `orders/api.py` — update endpoint `response` dicts, update raise sites
 - `products/schemas.py` — add `ProductErrors` RootModel
-- `products/api.py` — update endpoint `response` dicts, update raise sites
-- `blog/api.py` — add `PostErrors` RootModel, update endpoint declarations
+- `products/api.py` — update endpoint `response` dicts, migrate inline dict error returns to `raise AppException(...)` pattern
+- `blog/api.py` — add `PostErrors` RootModel, update endpoint declarations (note: blog success types use `status` as discriminator via `Annotated[..., Field(discriminator="status")]`, not `TaggedSchema` — this is unrelated to error handling and stays as-is)
 - `client/` — regenerate types, update ts-pattern examples
