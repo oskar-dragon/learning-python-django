@@ -89,12 +89,16 @@ class TaggedErrorAPI(NinjaExtraAPI):
                     if "401" not in responses:
                         responses["401"] = {
                             "description": "Unauthorized",
-                            "content": {"application/json": {"schema": _AUTHENTICATION_ERROR_SCHEMA}},
+                            "content": {
+                                "application/json": {"schema": _AUTHENTICATION_ERROR_SCHEMA}
+                            },
                         }
                     if "403" not in responses:
                         responses["403"] = {
                             "description": "Forbidden",
-                            "content": {"application/json": {"schema": _AUTHORIZATION_ERROR_SCHEMA}},
+                            "content": {
+                                "application/json": {"schema": _AUTHORIZATION_ERROR_SCHEMA}
+                            },
                         }
 
         return schema

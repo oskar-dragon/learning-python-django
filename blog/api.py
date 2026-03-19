@@ -18,4 +18,6 @@ def get_post(request: HttpRequest, post_id: int):
     try:
         return 200, Post.objects.get(id=post_id)
     except Post.DoesNotExist:
-        raise AppException(PostNotFoundError(id=post_id, detail=f"Post with id {post_id} not found"))
+        raise AppException(
+            PostNotFoundError(id=post_id, detail=f"Post with id {post_id} not found")
+        )
