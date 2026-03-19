@@ -26,3 +26,7 @@ class ProductNotFoundError(AppError):
 
 class ProductHiddenError(AppError):
     id: int
+
+
+class ProductErrors(RootModel[ProductNotFoundError | ProductHiddenError]):
+    pass
