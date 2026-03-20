@@ -1,5 +1,6 @@
 import json
 import logging
+from collections import defaultdict
 from typing import override
 
 from django.http import Http404, HttpRequest, HttpResponse
@@ -9,6 +10,7 @@ from ninja_extra import NinjaExtraAPI
 from ninja_jwt.controller import NinjaJWTDefaultController
 
 from blog.api import router as blog_router
+from core.decorators import RAISED_EXCEPTIONS_ATTR
 from core.exceptions import AppException
 from orders.api import router as orders_router
 from products.api import router as products_router
@@ -108,9 +110,30 @@ class TaggedErrorAPI(NinjaExtraAPI):
             status=500,
         )
 
+    def _collect_raised_exceptions(
+        self,
+    ) -> dict[str, tuple[type[AppException], ...]]:
+        """Collect @raises() metadata from all operations, keyed by operationId."""
+        result: dict[str, tuple[type[AppException], ...]] = {}
+        for _prefix, router in self._routers:
+            for _path, path_view in router.path_operations.items():
+                for operation in path_view.operations:
+                    raised = getattr(
+                        operation.view_func, RAISED_EXCEPTIONS_ATTR, None
+                    )
+                    if raised is None:
+                        continue
+                    op_id = operation.operation_id or self.get_openapi_operation_id(
+                        operation
+                    )
+                    result[op_id] = raised
+        return result
+
     @override
     def get_openapi_schema(self, **kwargs) -> OpenAPISchema:  # pyright: ignore[reportAny]
         schema = super().get_openapi_schema(**kwargs)
+        raised_by_op_id = self._collect_raised_exceptions()
+
         for path_methods in schema.get("paths", {}).values():
             for method_detail in path_methods.values():
                 if not isinstance(method_detail, dict) or "responses" not in method_detail:
@@ -118,6 +141,7 @@ class TaggedErrorAPI(NinjaExtraAPI):
                 responses = method_detail["responses"]
                 has_auth = method_detail.get("security")
 
+                # Framework error injection
                 if "422" not in responses:
                     responses["422"] = {
                         "description": "Unprocessable Entity",
@@ -144,6 +168,38 @@ class TaggedErrorAPI(NinjaExtraAPI):
                                 "application/json": {"schema": _AUTHORIZATION_ERROR_SCHEMA}
                             },
                         }
+
+                # Domain error injection via @raises()
+                op_id = method_detail.get("operationId")
+                raised = raised_by_op_id.get(op_id) if op_id else None
+                if raised is None:
+                    continue
+
+                by_status: dict[int, list[type[AppException]]] = defaultdict(list)
+                for exc_cls in raised:
+                    by_status[exc_cls.status].append(exc_cls)
+
+                for status_code, exc_classes in by_status.items():
+                    status_key = str(status_code)
+                    # Manual response= declaration takes precedence (keys may be int or str)
+                    if status_key in responses or status_code in responses:
+                        continue
+
+                    if len(exc_classes) == 1:
+                        error_schema = exc_classes[0].Schema.model_json_schema()
+                    else:
+                        error_schema = {
+                            "oneOf": [
+                                exc_cls.Schema.model_json_schema()
+                                for exc_cls in exc_classes
+                            ],
+                            "discriminator": {"propertyName": "tag"},
+                        }
+
+                    responses[status_key] = {
+                        "description": "Domain Error",
+                        "content": {"application/json": {"schema": error_schema}},
+                    }
 
         return schema
 
