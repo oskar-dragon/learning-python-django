@@ -15,7 +15,7 @@ def list_orders(request: HttpRequest, filters: Query[OrderFilters]) -> list[Orde
 
 @router.get(
     "/{order_id}/",
-    response={200: OrderResponse, 400: OrderErrors},
+    response={400: OrderErrors},
 )
 def get_order(request: HttpRequest, order_id: int) -> OrderResponse:
     # Errors are raised as AppException — caught by the global handler in project/api.py
