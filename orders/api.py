@@ -11,11 +11,14 @@ router = Router(auth=JWTAuth())
 
 
 @router.get("/", response=list[OrderResponse])
-def list_orders(request: HttpRequest, filters: Query[OrderFilters]) -> list[OrderResponse]:
-    return service.list_orders(filters)  # pyright: ignore[reportReturnType]
+def list_orders(request: HttpRequest, filters: Query[OrderFilters]):
+    return service.list_orders(filters)
 
 
-@router.get("/{order_id}/")
+@router.get("/{order_id}/", response=OrderResponse)
 @raises(OrderNotFoundError, OrderNotAccessibleError)
-def get_order(request: HttpRequest, order_id: int) -> OrderResponse:
-    return service.get_order(order_id)  # pyright: ignore[reportReturnType]
+def get_order(
+    request: HttpRequest,
+    order_id: int,
+):
+    return service.get_order(order_id)

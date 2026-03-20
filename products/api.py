@@ -11,13 +11,13 @@ router = Router(auth=JWTAuth())
 
 
 @router.get("/", response=list[ProductResponse])
-def list_products(request: HttpRequest) -> list[Product]:
+def list_products(request: HttpRequest):
     return list(Product.objects.exclude(status=Product.Status.HIDDEN))
 
 
 @router.get("/{product_id}/", response=ProductResponse)
 @raises(ProductNotFoundError, ProductHiddenError)
-def get_product(request: HttpRequest, product_id: int) -> Product:
+def get_product(request: HttpRequest, product_id: int):
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
