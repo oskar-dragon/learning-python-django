@@ -1,10 +1,5 @@
 import { match } from "ts-pattern";
-import type {
-  BlogApiGetPostError,
-  DraftPost,
-  PostResponse,
-  PublishedPost,
-} from "../generated/types.gen";
+import type { BlogApiGetPostError, PostResponse } from "../generated/types.gen";
 
 // Example 1: match on the PostResponse discriminated union.
 // Demonstrates: ts-pattern matches on the `tag` discriminant field.

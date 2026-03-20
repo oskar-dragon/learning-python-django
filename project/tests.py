@@ -125,12 +125,12 @@ class OpenAPISchemaInjectionTest(TestCase):
 
 
 class OnExceptionTagInjectionTest(TestCase):
-    """Verify that on_exception injects tags into framework error responses."""
+    """Verify that on_exception injects only tags into framework error responses."""
 
-    def test_http_error_gets_status_code_in_body(self) -> None:
-        """HttpError subclass responses should include status_code in the body."""
+    def test_framework_error_has_no_extra_fields(self) -> None:
+        """on_exception should only add tag — no status_code or other extras."""
         response = self.client.get("/api/orders/")
         self.assertEqual(response.status_code, 401)
         data = response.json()
-        self.assertIn("status_code", data)
-        self.assertEqual(data["status_code"], 401)
+        self.assertEqual(data["tag"], "AuthenticationError")
+        self.assertNotIn("status_code", data)

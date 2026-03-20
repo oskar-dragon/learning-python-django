@@ -3,7 +3,7 @@ import logging
 from typing import override
 
 from django.http import Http404, HttpRequest, HttpResponse
-from ninja.errors import HttpError, ValidationError
+from ninja.errors import ValidationError
 from ninja.openapi.schema import OpenAPISchema
 from ninja_extra import NinjaExtraAPI
 from ninja_jwt.controller import NinjaJWTDefaultController
@@ -92,14 +92,8 @@ class TaggedErrorAPI(NinjaExtraAPI):
             body = json.loads(response.content)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return response
-        changed = False
         if "tag" not in body:
             body["tag"] = _tag_for(exc)
-            changed = True
-        if isinstance(exc, HttpError) and "status_code" not in body:
-            body["status_code"] = exc.status_code
-            changed = True
-        if changed:
             response.content = json.dumps(body).encode()
         return response
 

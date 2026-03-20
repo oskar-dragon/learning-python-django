@@ -4,8 +4,6 @@ import type {
   OrdersApiGetOrderData,
   OrdersApiGetOrderError,
   OrderResponse,
-  PendingOrder,
-  ShippedOrder,
 } from "../generated/types.gen";
 import { flattenValidationErrors, type ExtractFields } from "./errors.ts";
 
@@ -13,16 +11,16 @@ function describeOrder(order: OrderResponse): string {
   return match(order)
     .with(
       { tag: "PendingOrder" },
-      (o: PendingOrder) => `Order for ${o.customer_name} is pending`,
+      (o) => `Order for ${o.customer_name} is pending`,
     )
     .with(
       { tag: "ShippedOrder" },
-      (o: ShippedOrder) =>
+      (o) =>
         `Order for ${o.customer_name} shipped — tracking: ${o.tracking_number}`,
     )
     .with(
       { tag: "CancelledOrder" },
-      (o: CancelledOrder) =>
+      (o) =>
         `Order for ${o.customer_name} cancelled — reason: ${o.cancellation_reason}`,
     )
     .exhaustive();
