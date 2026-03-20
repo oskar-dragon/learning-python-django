@@ -5,7 +5,7 @@ from pydantic import RootModel
 
 from blog.models import Post
 from core.exceptions import AppException
-from core.schemas import AppError, TaggedModelSchema, TaggedSchema
+from core.schemas import TaggedModelSchema, TaggedSchema
 
 
 class TaggedSchemaAutoTagTest(TestCase):
@@ -68,19 +68,6 @@ class TaggedSchemaAutoTagTest(TestCase):
 
         beta = Union.model_validate({"tag": "BetaSchema", "b": "hello"})
         self.assertIsInstance(beta.root, BetaSchema)
-
-    def test_intermediate_class_gets_own_tag(self) -> None:
-        """AppError is an intermediate class — it should get tag='AppError'."""
-        error = AppError(detail="test")
-        self.assertEqual(error.tag, "AppError")
-
-    def test_intermediate_class_does_not_break_subclass_tags(self) -> None:
-        class ConcreteError(AppError):
-            code: int
-
-        error = ConcreteError(detail="test", code=42)
-        self.assertEqual(error.tag, "ConcreteError")
-        self.assertNotEqual(error.tag, "AppError")
 
 
 class TaggedModelSchemaAutoTagTest(TestCase):
@@ -183,19 +170,85 @@ class TaggedModelSchemaAutoTagTest(TestCase):
 
 
 class AppExceptionTest(TestCase):
-    def test_stores_error(self) -> None:
-        class TestError(AppError):
-            pass
+    def test_subclass_gets_class_name_as_tag(self) -> None:
+        class TestError(AppException):
+            code: int
 
-        error = TestError(detail="something went wrong")
-        exc = AppException(error)
-        self.assertIs(exc.error, error)
-        self.assertEqual(error.tag, "TestError")
+        self.assertEqual(TestError.tag, "TestError")
+
+    def test_stores_fields_from_kwargs(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        exc = TestError(code=42, detail="something went wrong")
+        self.assertEqual(exc.detail, "something went wrong")
+        self.assertEqual(exc.code, 42)
+
+    def test_to_dict_includes_tag_detail_and_fields(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        exc = TestError(code=42, detail="something went wrong")
+        self.assertEqual(
+            exc.to_dict(),
+            {"tag": "TestError", "detail": "something went wrong", "code": 42},
+        )
 
     def test_is_exception_subclass(self) -> None:
-        class TestError(AppError):
+        class TestError(AppException):
+            code: int
+
+        exc = TestError(code=42, detail="test")
+        self.assertIsInstance(exc, Exception)
+
+    def test_raise_and_catch(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        with self.assertRaises(AppException) as ctx:
+            raise TestError(code=42, detail="test")
+        self.assertEqual(ctx.exception.tag, "TestError")
+
+    def test_default_status_is_400(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        self.assertEqual(TestError.status, 400)
+
+    def test_custom_status(self) -> None:
+        class TestError(AppException, status=404):
+            code: int
+
+        self.assertEqual(TestError.status, 404)
+
+    def test_auto_generates_schema(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        schema = TestError.Schema
+        instance = schema(code=42, detail="test")
+        dump = instance.model_dump()
+        self.assertEqual(dump["tag"], "TestError")
+        self.assertEqual(dump["code"], 42)
+        self.assertEqual(dump["detail"], "test")
+
+    def test_schema_json_schema_has_const_tag(self) -> None:
+        class TestError(AppException):
+            code: int
+
+        json_schema = TestError.Schema.model_json_schema()
+        self.assertEqual(json_schema["properties"]["tag"]["const"], "TestError")
+
+    def test_detail_defaults_to_empty_string(self) -> None:
+        class TestError(AppException):
             pass
 
-        error = TestError(detail="something went wrong")
-        exc = AppException(error)
-        self.assertIsInstance(exc, Exception)
+        exc = TestError()
+        self.assertEqual(exc.detail, "")
+
+    def test_detail_uses_subclass_default(self) -> None:
+        class TestError(AppException):
+            detail: str = "Custom default"
+
+        exc = TestError()
+        self.assertEqual(exc.detail, "Custom default")
