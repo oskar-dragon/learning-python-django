@@ -100,6 +100,16 @@ class OpenAPISchemaInjectionTest(TestCase):
         self.assertNotIn("401", get_posts_responses)
         self.assertNotIn("403", get_posts_responses)
 
+    def test_validation_error_item_schema_includes_ctx(self) -> None:
+        """ValidationError item schema should include optional ctx field."""
+        response = self.client.get("/api/openapi.json")
+        schema = response.json()
+        get_order_responses = schema["paths"]["/api/orders/{order_id}/"]["get"]["responses"]
+        content = get_order_responses["422"]["content"]["application/json"]["schema"]
+        error_items = content["properties"]["errors"]["items"]
+        self.assertIn("ctx", error_items["properties"])
+        self.assertNotIn("ctx", error_items["required"])
+
     def test_every_endpoint_has_internal_error_schema(self) -> None:
         """Every endpoint should have a 500 response with InternalError schema."""
         response = self.client.get("/api/openapi.json")

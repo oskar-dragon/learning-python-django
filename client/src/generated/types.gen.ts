@@ -482,6 +482,9 @@ export type TokenObtainPairErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -526,6 +529,9 @@ export type TokenRefreshErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -570,6 +576,9 @@ export type TokenVerifyErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -614,6 +623,9 @@ export type BlogApiGetPostsErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -669,6 +681,9 @@ export type BlogApiGetPostErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -745,6 +760,9 @@ export type OrdersApiListOrdersErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -818,6 +836,9 @@ export type OrdersApiGetOrderErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -880,6 +901,9 @@ export type ProductsApiListProductsErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**
@@ -953,6 +977,9 @@ export type ProductsApiGetProductErrors = {
             type: string;
             loc: Array<string>;
             msg: string;
+            ctx?: {
+                [key: string]: unknown;
+            };
         }>;
     };
     /**

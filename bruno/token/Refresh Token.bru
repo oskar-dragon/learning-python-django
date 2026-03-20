@@ -1,0 +1,20 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 2
+  tags: [
+    token
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/token/refresh
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "refresh": ""
+  }
+}

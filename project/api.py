@@ -45,6 +45,7 @@ _VALIDATION_ERROR_ITEM_SCHEMA: dict = {
         "type": {"type": "string"},
         "loc": {"type": "array", "items": {"type": "string"}},
         "msg": {"type": "string"},
+        "ctx": {"type": "object"},
     },
     "required": ["type", "loc", "msg"],
 }
@@ -125,7 +126,7 @@ def handle_authentication_error(request: HttpRequest, exc: AuthenticationError) 
     return api.create_response(
         request,
         {"tag": "AuthenticationError", "detail": str(exc)},
-        status=401,
+        status=exc.status_code,
     )
 
 
@@ -134,7 +135,7 @@ def handle_authorization_error(request: HttpRequest, exc: AuthorizationError) ->
     return api.create_response(
         request,
         {"tag": "AuthorizationError", "detail": str(exc)},
-        status=403,
+        status=exc.status_code,
     )
 
 

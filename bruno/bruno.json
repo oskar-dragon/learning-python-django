@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Django Learning API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

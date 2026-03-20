@@ -1,0 +1,21 @@
+meta {
+  name: Obtain Token
+  type: http
+  seq: 1
+  tags: [
+    token
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/token/pair
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "password": "",
+    "username": ""
+  }
+}
