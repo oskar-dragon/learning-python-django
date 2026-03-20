@@ -20,8 +20,3 @@ class PostResponse(RootModel[DraftPost | PublishedPost]):
     pass
 
 
-from blog.exceptions import PostNotFoundError
-
-
-class PostErrors(RootModel[PostNotFoundError.Schema]):
-    pass

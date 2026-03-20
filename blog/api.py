@@ -3,7 +3,8 @@ from ninja import Router
 
 from blog.exceptions import PostNotFoundError
 from blog.models import Post
-from blog.schemas import PostErrors, PostResponse
+from blog.schemas import PostResponse
+from core.decorators import raises
 
 router = Router()
 
@@ -13,9 +14,10 @@ def get_posts(request: HttpRequest):
     return Post.objects.all()
 
 
-@router.get("/post/{post_id}", response={200: PostResponse, 400: PostErrors})
+@router.get("/post/{post_id}", response=PostResponse)
+@raises(PostNotFoundError)
 def get_post(request: HttpRequest, post_id: int):
     try:
-        return 200, Post.objects.get(id=post_id)
+        return Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         raise PostNotFoundError(id=post_id, detail=f"Post with id {post_id} not found")
