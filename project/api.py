@@ -4,7 +4,6 @@ from collections import defaultdict
 from typing import override
 
 from django.http import Http404, HttpRequest, HttpResponse
-from ninja.errors import ValidationError
 from ninja.openapi.schema import OpenAPISchema
 from ninja_extra import NinjaExtraAPI
 from ninja_jwt.controller import NinjaJWTDefaultController

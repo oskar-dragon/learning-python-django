@@ -40,7 +40,6 @@ class OrderResponse(RootModel[PendingOrder | ShippedOrder | CancelledOrder]):
     pass
 
 
-
 class OrderFilters(FilterSchema):
     status: Order.Status | None = None
     q: str | None = Field(None, q=["customer_name__icontains"])  # pyright: ignore[reportCallIssue, reportUnknownVariableType]
