@@ -20,8 +20,3 @@ class ProductResponse(RootModel[AvailableProduct | OutOfStockProduct]):
     pass
 
 
-from products.exceptions import ProductHiddenError, ProductNotFoundError
-
-
-class ProductErrors(RootModel[ProductNotFoundError.Schema | ProductHiddenError.Schema]):
-    pass
