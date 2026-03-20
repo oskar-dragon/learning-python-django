@@ -44,7 +44,7 @@ class FrameworkErrorTagTest(TestCase):
         self.assertEqual(response.status_code, 422)
         data = response.json()
         self.assertEqual(data["tag"], "ValidationError")
-        self.assertIn("errors", data)
+        self.assertIsInstance(data["detail"], list)
 
     def test_authentication_error_has_tag(self) -> None:
         """Missing auth on a protected endpoint → tagged 401."""
@@ -106,7 +106,7 @@ class OpenAPISchemaInjectionTest(TestCase):
         schema = response.json()
         get_order_responses = schema["paths"]["/api/orders/{order_id}/"]["get"]["responses"]
         content = get_order_responses["422"]["content"]["application/json"]["schema"]
-        error_items = content["properties"]["errors"]["items"]
+        error_items = content["properties"]["detail"]["items"]
         self.assertIn("ctx", error_items["properties"])
         self.assertNotIn("ctx", error_items["required"])
 
@@ -122,3 +122,15 @@ class OpenAPISchemaInjectionTest(TestCase):
                         details["responses"],
                         f"{method.upper()} {path} missing 500 response",
                     )
+
+
+class OnExceptionTagInjectionTest(TestCase):
+    """Verify that on_exception injects tags into framework error responses."""
+
+    def test_http_error_gets_status_code_in_body(self) -> None:
+        """HttpError subclass responses should include status_code in the body."""
+        response = self.client.get("/api/orders/")
+        self.assertEqual(response.status_code, 401)
+        data = response.json()
+        self.assertIn("status_code", data)
+        self.assertEqual(data["status_code"], 401)
