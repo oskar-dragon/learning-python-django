@@ -4,6 +4,7 @@ from django.test import TestCase
 from pydantic import RootModel
 
 from blog.models import Post
+from core.decorators import RAISED_EXCEPTIONS_ATTR, raises
 from core.exceptions import AppException
 from core.schemas import TaggedModelSchema, TaggedSchema
 
@@ -252,3 +253,44 @@ class AppExceptionTest(TestCase):
 
         exc = TestError()
         self.assertEqual(exc.detail, "Custom default")
+
+
+class RaisesDecoratorTest(TestCase):
+    def test_stashes_exceptions_on_function(self) -> None:
+        class ErrorA(AppException):
+            pass
+
+        class ErrorB(AppException):
+            pass
+
+        @raises(ErrorA, ErrorB)
+        def my_view():
+            pass
+
+        self.assertEqual(
+            getattr(my_view, RAISED_EXCEPTIONS_ATTR),
+            (ErrorA, ErrorB),
+        )
+
+    def test_does_not_wrap_function(self) -> None:
+        """raises() should not alter the function identity — it's metadata-only."""
+
+        class ErrorA(AppException):
+            pass
+
+        original = lambda: None  # noqa: E731
+        decorated = raises(ErrorA)(original)
+        self.assertIs(decorated, original)
+
+    def test_single_exception(self) -> None:
+        class ErrorA(AppException):
+            pass
+
+        @raises(ErrorA)
+        def my_view():
+            pass
+
+        self.assertEqual(
+            getattr(my_view, RAISED_EXCEPTIONS_ATTR),
+            (ErrorA,),
+        )
