@@ -41,7 +41,7 @@ function describeError(error: OrdersApiGetOrderError): string {
     .with({ tag: "ValidationError" }, (e) => {
       const fields = flattenValidationErrors<
         ExtractFields<OrdersApiGetOrderData>
-      >(e.errors);
+      >(e.detail);
       // Field-level access with autocomplete: fields.path?.order_id?.msg
       fields.path?.order_id?.msg;
       return fields.path?.order_id?.msg ?? "Validation error";

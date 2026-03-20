@@ -477,8 +477,7 @@ export type TokenObtainPairErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -524,8 +523,7 @@ export type TokenRefreshErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -571,8 +569,7 @@ export type TokenVerifyErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -618,8 +615,7 @@ export type BlogApiGetPostsErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -676,8 +672,7 @@ export type BlogApiGetPostErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -755,8 +750,7 @@ export type OrdersApiListOrdersErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -831,8 +825,7 @@ export type OrdersApiGetOrderErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -896,8 +889,7 @@ export type ProductsApiListProductsErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;
@@ -972,8 +964,7 @@ export type ProductsApiGetProductErrors = {
      */
     422: {
         tag: 'ValidationError';
-        detail: string;
-        errors: Array<{
+        detail: Array<{
             type: string;
             loc: Array<string>;
             msg: string;

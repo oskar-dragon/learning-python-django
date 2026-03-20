@@ -7,7 +7,7 @@
  * Usage:
  *   import type { OrdersApiListOrdersData } from "../generated/types.gen";
  *
- *   const fields = flattenValidationErrors<ExtractFields<OrdersApiListOrdersData>>(e.errors);
+ *   const fields = flattenValidationErrors<ExtractFields<OrdersApiListOrdersData>>(e.detail);
  *   fields.query?.status?.msg  // autocomplete on field names
  */
 
