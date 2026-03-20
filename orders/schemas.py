@@ -40,12 +40,6 @@ class OrderResponse(RootModel[PendingOrder | ShippedOrder | CancelledOrder]):
     pass
 
 
-from orders.exceptions import OrderNotAccessibleError, OrderNotFoundError
-
-
-class OrderErrors(RootModel[OrderNotFoundError.Schema | OrderNotAccessibleError.Schema]):
-    pass
-
 
 class OrderFilters(FilterSchema):
     status: Order.Status | None = None
