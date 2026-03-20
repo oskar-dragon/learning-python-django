@@ -120,9 +120,3 @@ class TaggedModelSchema(Schema, metaclass=_TaggedModelSchemaMetaclass):
 
 
 _is_tagged_model_schema_defined = True
-
-
-class AppError(TaggedSchema):
-    """Base for all API error responses. Subclasses narrow tag to a Literal."""
-
-    detail: str

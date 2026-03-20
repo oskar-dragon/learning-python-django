@@ -1,7 +1,7 @@
 from pydantic import RootModel
 
 from blog.models import Post
-from core.schemas import AppError, TaggedModelSchema
+from core.schemas import TaggedModelSchema
 
 
 class DraftPost(TaggedModelSchema, tag="draft", tag_field="status"):
@@ -20,9 +20,8 @@ class PostResponse(RootModel[DraftPost | PublishedPost]):
     pass
 
 
-class PostNotFoundError(AppError):
-    id: int
+from blog.exceptions import PostNotFoundError
 
 
-class PostErrors(RootModel[PostNotFoundError]):
+class PostErrors(RootModel[PostNotFoundError.Schema]):
     pass

@@ -1,10 +1,8 @@
-from core.exceptions import AppException
+from orders.exceptions import OrderNotAccessibleError, OrderNotFoundError
 from orders.models import Order
 from orders.schemas import (
     CancelledOrder,
     OrderFilters,
-    OrderNotAccessibleError,
-    OrderNotFoundError,
     PendingOrder,
     ShippedOrder,
 )
@@ -58,9 +56,9 @@ def get_order(order_id: int) -> OrderQueryResult:
     try:
         order = Order.objects.get(id=order_id)
     except Order.DoesNotExist:
-        raise AppException(OrderNotFoundError(id=order_id, detail="Order not found"))
+        raise OrderNotFoundError(id=order_id)
 
     if order.status == Order.Status.DRAFT:
-        raise AppException(OrderNotAccessibleError(id=order_id, detail="Order not accessible"))
+        raise OrderNotAccessibleError(id=order_id)
 
     return _to_schema(order)

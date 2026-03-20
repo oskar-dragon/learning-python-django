@@ -2,12 +2,10 @@ from django.http import HttpRequest
 from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 
-from core.exceptions import AppException
+from products.exceptions import ProductHiddenError, ProductNotFoundError
 from products.models import Product
 from products.schemas import (
     ProductErrors,
-    ProductHiddenError,
-    ProductNotFoundError,
     ProductResponse,
 )
 
@@ -27,13 +25,9 @@ def get_product(request: HttpRequest, product_id: int) -> Product:
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
-        raise AppException(
-            ProductNotFoundError(id=product_id, detail=f"Product {product_id} not found")
-        )
+        raise ProductNotFoundError(id=product_id, detail=f"Product {product_id} not found")
 
     if product.status == Product.Status.HIDDEN:
-        raise AppException(
-            ProductHiddenError(id=product_id, detail=f"Product {product_id} is not available")
-        )
+        raise ProductHiddenError(id=product_id, detail=f"Product {product_id} is not available")
 
     return product

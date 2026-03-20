@@ -4,7 +4,7 @@ from decimal import Decimal
 from ninja.filter_schema import FilterSchema
 from pydantic import Field, RootModel
 
-from core.schemas import AppError, TaggedSchema
+from core.schemas import TaggedSchema
 from orders.models import Order
 
 
@@ -40,15 +40,10 @@ class OrderResponse(RootModel[PendingOrder | ShippedOrder | CancelledOrder]):
     pass
 
 
-class OrderNotFoundError(AppError):
-    id: int
+from orders.exceptions import OrderNotAccessibleError, OrderNotFoundError
 
 
-class OrderNotAccessibleError(AppError):
-    id: int
-
-
-class OrderErrors(RootModel[OrderNotFoundError | OrderNotAccessibleError]):
+class OrderErrors(RootModel[OrderNotFoundError.Schema | OrderNotAccessibleError.Schema]):
     pass
 
 

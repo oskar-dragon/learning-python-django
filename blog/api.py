@@ -1,9 +1,9 @@
 from django.http import HttpRequest
 from ninja import Router
 
+from blog.exceptions import PostNotFoundError
 from blog.models import Post
-from blog.schemas import PostErrors, PostNotFoundError, PostResponse
-from core.exceptions import AppException
+from blog.schemas import PostErrors, PostResponse
 
 router = Router()
 
@@ -18,6 +18,4 @@ def get_post(request: HttpRequest, post_id: int):
     try:
         return 200, Post.objects.get(id=post_id)
     except Post.DoesNotExist:
-        raise AppException(
-            PostNotFoundError(id=post_id, detail=f"Post with id {post_id} not found")
-        )
+        raise PostNotFoundError(id=post_id, detail=f"Post with id {post_id} not found")

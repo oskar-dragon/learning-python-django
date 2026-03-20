@@ -1,6 +1,6 @@
 from pydantic import RootModel
 
-from core.schemas import AppError, TaggedModelSchema
+from core.schemas import TaggedModelSchema
 from products.models import Product
 
 
@@ -20,13 +20,8 @@ class ProductResponse(RootModel[AvailableProduct | OutOfStockProduct]):
     pass
 
 
-class ProductNotFoundError(AppError):
-    id: int
+from products.exceptions import ProductHiddenError, ProductNotFoundError
 
 
-class ProductHiddenError(AppError):
-    id: int
-
-
-class ProductErrors(RootModel[ProductNotFoundError | ProductHiddenError]):
+class ProductErrors(RootModel[ProductNotFoundError.Schema | ProductHiddenError.Schema]):
     pass
